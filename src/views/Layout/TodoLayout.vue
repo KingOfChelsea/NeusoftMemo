@@ -1,6 +1,3 @@
-<!--
-@
--->
 <template>
   <div class="todo-app">
     <!-- Header -->
@@ -346,15 +343,7 @@ import TodoContextMenu from "@/components/TodoContextMenu.vue";
 import SubtaskDialog from './components/SubtaskDialog.vue';
 import CreateTagDialog from "./components/CreateTagDialog.vue";
 import CreateProjectDialog from "./components/CreateProjectDialog.vue";
-import {
-  Document,
-  DocumentChecked,
-  Edit,
-  Calendar,
-  CollectionTag,
-  List,
-  Plus
-} from "@element-plus/icons-vue";
+
 
 //
 const dragIndex = ref(null);
@@ -967,15 +956,26 @@ const copyTimeToClipboard = async (value) => {
 /**
  * 1，标签窗口的增加 Added By Zane Xu 2026-02-02
 */
-const tagOptions = reactive(["祈福医院信息化建设", "孙逸仙南北院区建设", "其他"]);
+// 使用ref包装
+const tagOptions = ref(JSON.parse(localStorage.getItem("tagOptionsList")) || ["祈福医院信息化建设", "孙逸仙南北院区建设", "其他"]);
 const dialogTagVisible = ref(false)
+const loadTagsOptions = () => {
+  const raw = localStorage.getItem("tagOptionsList");
+  if (raw) {
+    tagOptions.value = JSON.parse(raw);
+  }
+};
+watch(tagOptions, (newVal) => {
+  localStorage.setItem("tagOptionsList", JSON.stringify(newVal))
+}, { deep: true })
+
 const openAddTagDialog = () => {
   dialogTagVisible.value = true
 }
 // 处理添加标签
 const handleAddTag = (tagName) => {
   if (tagName) {
-    tagOptions.push(tagName)
+    tagOptions.value.push(tagName)
     ElMessage.success(`标签 "${tagName}" 添加成功`)
   }
 }
@@ -991,28 +991,39 @@ const removeTag = (index) => {
       type: 'warning',
     }
   ).then(() => {
-    tagOptions.splice(index, 1)
+    tagOptions.value.splice(index, 1)
     ElMessage.success('标签删除成功')
   }).catch(() => {
     // 取消删除
   })
 }
+loadTagsOptions()
 
 /**
  * 1.项目窗口的增加 Added By Zane Xu 2026-02-04
  */
 const dialogProjectVisible = ref(false)
-const projectOptions = reactive(["学习", "工作", "生活"])
+const projectOptions = ref(JSON.parse(localStorage.getItem("porjectOptionsList")) || ["学习", "工作", "生活"])
+const loadProjectOptions = () => {
+  const raw = localStorage.getItem("porjectOptionsList")
+  if (raw) {
+    projectOptions.value = JSON.parse(raw)
+  }
+};
+watch(projectOptions, (newVal) => {
+  localStorage.setItem("porjectOptionsList", JSON.stringify(newVal))
+}, { deep: true })
 const openAddProjectDialog = () => {
   dialogProjectVisible.value = true
 }
 // 添加项目文件夹
 const handleAddProject = (projectName) => {
   if (projectName) {
-    projectOptions.push(projectName)
+    projectOptions.value.push(projectName)
     ElMessage.success(`标签 "${projectName}" 添加成功`)
   }
 }
+loadProjectOptions()
 </script>
 
 <style lang="scss" scoped></style>
