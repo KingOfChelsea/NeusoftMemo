@@ -1,0 +1,525 @@
+/* ==================== 全局样式 ==================== */
+body {
+  margin: 0;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+    sans-serif;
+  background: #f5f7fa;
+  color: #303133;
+}
+
+/* ==================== 根容器 ==================== */
+.todo-app {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* ==================== Header ==================== */
+.app-header {
+  height: 60px;
+  background: #ffffff;
+  border-bottom: 1px solid #ebeef5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.app-header .left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-header .left .logo {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.app-header .left .current-view {
+  color: #909399;
+  font-size: 14px;
+}
+
+.app-header .center {
+  width: 360px;
+}
+
+.app-header .right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==================== 主体容器 ==================== */
+.app-container {
+  width: 100%;
+  height: 100%;
+  padding-top: 60px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-container .app-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ==================== Sidebar ==================== */
+.app-container .sidebar {
+  width: 220px;
+  background: #ffffff;
+  border-right: 1px solid #ebeef5;
+  padding: 16px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.app-container .sidebar .section {
+  margin-bottom: 24px;
+}
+
+.app-container .sidebar .section h4 {
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: #606266;
+  font-weight: 500;
+}
+
+.app-container .sidebar .section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.app-container .sidebar .section ul li {
+  padding: 6px 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.app-container .sidebar .section ul li:hover {
+  background: #f5f7fa;
+}
+
+.app-container .sidebar .section ul li .count {
+  font-size: 12px;
+  color: #909399;
+}
+
+.app-container .sidebar .section ul li.danger {
+  color: #f56c6c;
+}
+
+.app-container .sidebar .section .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.app-container .sidebar .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.app-container .sidebar .dot.blue {
+  background: #409eff;
+}
+
+.app-container .sidebar .dot.green {
+  background: #67c23a;
+}
+
+.app-container .sidebar .dot.orange {
+  background: #e6a23c;
+}
+
+/* ==================== Main 区域 ==================== */
+.app-container .main {
+  flex: 1;
+  background: #f5f7fa;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 工具栏 */
+.app-container .main .main-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 10px 8px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.app-container .main .main-toolbar .left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-right: 10px;
+}
+.app-container .main .main-toolbar .right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.app-container .main .main-toolbar .dropdown {
+  cursor: pointer;
+  font-size: 14px;
+  color: #606266;
+}
+
+.app-container .main .main-toolbar .dropdown:hover {
+  color: #409eff;
+}
+
+/* 空状态 */
+.app-container .main .main-empty {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.app-container .main .main-empty .empty-box {
+  text-align: center;
+}
+
+.app-container .main .main-empty .empty-box h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.app-container .main .main-empty .empty-box p {
+  margin: 0 0 16px;
+  color: #909399;
+  font-size: 14px;
+}
+
+/* 待办列表 */
+.app-container .main .todo-list {
+  background: #ffffff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* 待办项 */
+.app-container .main .todo-list .todo-item {
+  cursor: grab;
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ebeef5;
+  transition: background 0.2s;
+}
+
+.app-container .main .todo-list .todo-item.dragging {
+  opacity: 0.5;
+  background: #ecf5ff;
+}
+
+.app-container .main .todo-list .todo-item:active {
+  cursor: grabbing;
+}
+
+.app-container .main .todo-list .todo-item:hover {
+  background: #f5f7fa;
+}
+
+.app-container .main .todo-list .todo-item:hover .actions {
+  opacity: 1;
+}
+
+.app-container .main .todo-list .todo-item:last-child {
+  border-bottom: none;
+}
+
+.app-container .main .todo-list .todo-item.completed .title {
+  text-decoration: line-through;
+  color: #909399;
+}
+
+.app-container .main .todo-list .todo-item .left {
+  margin-right: 12px;
+  padding-top: 2px;
+}
+
+.app-container .main .todo-list .todo-item .content {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-container .main .todo-list .todo-item .content .title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #303133;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.app-container .main .todo-list .todo-item .content .meta {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: #909399;
+}
+
+.app-container .main .todo-list .todo-item .content .meta .deadline.normal {
+  color: #409eff;
+}
+
+.app-container .main .todo-list .todo-item .content .meta .deadline.expired {
+  color: #f56c6c;
+}
+
+.app-container .main .todo-list .todo-item .content .meta .subtask {
+  color: #67c23a;
+}
+
+.app-container .main .todo-list .todo-item .actions {
+  margin-left: 12px;
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* ==================== Detail 区域 ==================== */
+.app-container .detail {
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 16px;
+}
+
+.app-container .detail-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+.app-container .detail-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-container .detail-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.app-container .detail-section {
+  background: #f9fafc;
+  padding: 12px;
+  border-radius: 6px;
+  flex: 1;
+  height: 100%;
+}
+
+.app-container .detail-section .section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 13px;
+  color: #606266;
+  margin-bottom: 8px;
+}
+
+.app-container .detail-section .description {
+  font-size: 14px;
+  color: #303133;
+  line-height: 1.6;
+}
+
+.app-container .detail-section.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.app-container .detail-section.meta .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #606266;
+}
+
+/* 子任务 */
+.app-container .subtasks .subtask-item {
+  padding: 10px 10px;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+.app-container .subtasks .el-checkbox {
+  align-items: flex-start;
+  max-width: 100%;
+}
+
+.app-container .subtasks .el-checkbox__label {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+  padding-right: 4px;
+  margin-bottom: 15px;
+}
+
+.app-container .detail-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.app-container .detail-empty .placeholder {
+  text-align: center;
+  color: #909399;
+}
+
+.app-container .detail-empty .placeholder h3 {
+  margin: 12px 0 6px;
+}
+
+.app-container .detail-empty .placeholder ul {
+  margin-top: 12px;
+  padding-left: 16px;
+  text-align: left;
+  font-size: 13px;
+}
+
+/* ==================== Footer ==================== */
+.app-container .app-footer {
+  height: 44px;
+  background: #ffffff;
+  border-top: 1px solid #ebeef5;
+  padding: 0 20px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-container .app-footer .actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-container .app-footer .actions .tip {
+  font-size: 12px;
+  color: #909399;
+}
+
+/* ==================== 通用组件 ==================== */
+.editable-desc {
+  cursor: text;
+  min-height: 22px;
+}
+
+.editable-desc:hover {
+  background: #f5f7fa;
+}
+
+.editable-title {
+  cursor: text;
+}
+
+.editable-title:hover {
+  color: #409eff;
+}
+
+.app-version {
+  font-size: 12px;
+  color: #909399;
+  margin-left: 12px;
+}
+
+/* 已完成区域 */
+.completed-section {
+  margin-top: 16px;
+  border-top: 1px dashed #e4e7ed;
+  padding-top: 8px;
+}
+
+.completed-section .completed-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #909399;
+  font-size: 13px;
+  user-select: none;
+  padding: 10px;
+}
+
+.completed-section .completed-header:hover {
+  color: #409eff;
+}
+
+.completed-section .completed-list {
+  margin-top: 8px;
+  padding: 10px;
+}
+
+.completed-section .completed-list .todo-item {
+  opacity: 0.6;
+}
+
+.completed-section .completed-list .todo-item:hover {
+  opacity: 1;
+}
+
+/* 动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+.subtask-ul {
+  padding: 0;
+}
