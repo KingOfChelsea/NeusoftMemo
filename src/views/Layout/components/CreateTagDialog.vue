@@ -1,8 +1,21 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="添加标签" width="400px" :before-close="handleClose">
+
+  <el-dialog v-model="dialogVisible" title="添加标签" width="500px" :before-close="handleClose">
     <el-form ref="formRef" :model="formData" :rules="formRules" label-width="80px">
       <el-form-item label="标签名称" prop="tagName">
         <el-input v-model="formData.tagName" placeholder="请输入标签名称" clearable @keyup.enter="submitForm" />
+      </el-form-item>
+      <el-form-item label="标签颜色" prop="tagColor">
+        <div class="color-picker-wrapper">
+          <el-color-picker v-model="formData.tagColor" :predefine="predefineColors" show-alpha size="small" />
+          <span class="color-tip">选择标签显示颜色</span>
+        </div>
+      </el-form-item>
+      <el-form-item label="字体颜色" prop="fontColor">
+        <div class="color-picker-wrapper">
+          <el-color-picker v-model="formData.fontColor" :predefine="predefineColors" size="small" />
+          <span class="color-tip">选择字体显示颜色</span>
+        </div>
       </el-form-item>
     </el-form>
 
@@ -65,7 +78,9 @@ const formRef = ref()
 
 // 表单数据
 const formData = reactive({
-  tagName: ''
+  tagName: '',
+  tagColor: '#409EFF',
+  fontColor: '#ffffff'
 })
 
 // 表单验证规则
@@ -99,6 +114,8 @@ const formRules = {
 // 重置表单
 const resetForm = () => {
   formData.tagName = ''
+  formData.tagColor = '#409EFF'
+  formData.fontColor = '#ffffff'
   if (formRef.value) {
     formRef.value.resetFields()
   }
@@ -112,9 +129,14 @@ const submitForm = async () => {
     await formRef.value.validate()
 
     const tagName = formData.tagName.trim()
-
+    const tagColor = formData.tagColor || '#409EFF'
+    const fontColor = formData.fontColor || '#ffffff'
     // 触发添加标签事件
-    emit('add-tag', tagName)
+    emit('add-tag', {
+      name: tagName,
+      color: tagColor,
+      fontColor: fontColor
+    })
 
     // 重置表单并关闭弹窗
     resetForm()
@@ -129,6 +151,29 @@ const handleClose = (done) => {
   resetForm()
   done()
 }
+/**
+ * 1.增加标签颜色选择器 Added By xuzhenyu 2026-02-11
+ */
+const predefineColors = ref([
+  '#409EFF',
+  '#67C23A',
+  '#E6A23C',
+  '#F56C6C',
+  '#909399',
+  '#ff4500',
+  '#ff8c00',
+  '#ffd700',
+  '#90ee90',
+  '#00ced1',
+  '#1e90ff',
+  '#c71585',
+  'rgba(255, 69, 0, 0.68)',
+  'rgb(255, 120, 0)',
+  'hsv(51, 100, 98)',
+  'hsva(120, 40, 94, 0.5)',
+  'hsl(181, 100%, 37%)',
+  'hsla(209, 100%, 56%, 0.73)'
+])
 </script>
 
 <style scoped>
@@ -136,5 +181,27 @@ const handleClose = (done) => {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-tip {
+  color: #909399;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+/* 自定义颜色选择器样式 */
+:deep(.el-color-picker__trigger) {
+  border-radius: 6px;
+  border: 1px solid #dcdfe6;
+}
+
+:deep(.el-color-picker__trigger:hover) {
+  border-color: #c0c4cc;
 }
 </style>

@@ -18,9 +18,7 @@
         <div class="form-item">
           <label>项目</label>
           <el-select v-model="form.project" placeholder="选择项目">
-            <el-option label="工作" value="work" />
-            <el-option label="学习" value="study" />
-            <el-option label="生活" value="life" />
+            <el-option v-for="(value, index) in projectOptions" :key="index" :label="value" :value="value" />
           </el-select>
         </div>
 
@@ -40,7 +38,7 @@
         <div class="form-item">
           <label>标签</label>
           <el-select v-model="form.tags" multiple filterable allow-create default-first-option placeholder="选择或输入标签">
-            <el-option v-for="tag in tagOptions" :key="tag" :label="tag" :value="tag" />
+            <el-option v-for="(tag, index) in tagOptions" :key="index" :label="tag.name" :value="tag.name" />
           </el-select>
         </div>
 
@@ -87,11 +85,14 @@
 <script setup>
 import { reactive, watch, defineProps, defineEmits } from "vue";
 
-const emit = defineEmits(["update:visible", "create"]);
+const emit = defineEmits(["update:visible", "create", "update:tagOptions"]);
 
 const props = defineProps({
   visible: Boolean,
   task: Object, // 编辑时传入任务
+  tagOptions: Object, // 标签
+  projectOptions: Object //文件夹
+
 });
 
 const form = reactive({
@@ -104,9 +105,6 @@ const form = reactive({
   deadline: "",
   subtasks: [] // 新增子任务数组
 });
-
-// 可选标签列表
-const tagOptions = reactive(["祈福医院信息化建设", "孙逸仙南北院区建设", "其他"]);
 
 
 
@@ -128,8 +126,14 @@ watch(
   () => form.tags,
   (newVal) => {
     newVal.forEach(tag => {
-      if (!tagOptions.includes(tag)) {
-        tagOptions.push(tag);
+      console.log(props.tagOptions);
+
+      if (!props.tagOptions.some(tag1 => tag1.name === tag)) {
+        const newTag = {
+          name: tag,        // 标签名
+          color: '#ffffff' // 默认背景颜色
+        }
+        emit('update:tagOptions', newTag)
       }
     });
   }

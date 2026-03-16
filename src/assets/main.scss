@@ -391,16 +391,24 @@ body {
 }
 
 .app-container .subtasks .el-checkbox {
+  display: flex;
   align-items: flex-start;
   max-width: 100%;
+  height: 100%;
+}
+
+.app-container .subtasks .el-checkbox__input {
+  margin-top: 3px;
+  flex-shrink: 0;
 }
 
 .app-container .subtasks .el-checkbox__label {
   white-space: normal;
   word-break: break-word;
-  line-height: 1.4;
-  padding-right: 4px;
-  margin-bottom: 15px;
+  line-height: 1.5;
+  padding-left: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
 .app-container .detail-empty {

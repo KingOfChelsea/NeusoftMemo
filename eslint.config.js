@@ -1,7 +1,7 @@
 import { defineConfig, globalIgnores } from 'eslint/config'
 import globals from 'globals'
 import js from '@eslint/js'
-import pluginVue from 'eslint-plugin-vue'
+import pluginVue, { rules } from 'eslint-plugin-vue'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 
 export default defineConfig([
@@ -21,6 +21,10 @@ export default defineConfig([
         ElLoading: 'readonly',
         ElNotification: 'readonly',
       },
+    },
+    rules: {
+      // 关闭组件命名规则
+      'vue/multi-word-component-names': 'off',
     },
   },
 

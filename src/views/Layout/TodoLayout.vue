@@ -20,6 +20,7 @@
         <el-button @click="triggerImport">导入</el-button>
         <input ref="fileInput" type="file" accept="application/json" style="display: none" @change="importJson" />
         <el-button @click="refreshTodos">刷新</el-button>
+        <el-button color="#626aef" type="primary" :icon="Setting">参数控制</el-button>
         <span class="app-version">版本: v{{ currentVersion }}</span>
         <el-avatar size="small">U</el-avatar>
       </div>
@@ -57,8 +58,8 @@
             </h4>
             <div class="tags">
               <el-tag v-for="(tag, index) in tagOptions" @close="removeTag(index)" closable :key="index" size="small"
-                type="success">
-                {{ tag }}
+                :color="tag.color" :style="{ color: tag.fontColor }">
+                {{ tag.name }}
               </el-tag>
             </div>
 
@@ -118,9 +119,11 @@
 
                   <div class="meta">
                     <el-tag v-for="tag in todo.tags" :key="tag" size="small">{{ tag }}</el-tag>
+
                     <span class="deadline" :class="{ expired: isExpired(todo.deadline) }">
                       {{ todo.deadline ? '截止：' + formatDate(todo.deadline) : '' }}
                     </span>
+                    <el-text type="success">{{ todo.project }}</el-text>
                   </div>
                 </div>
                 <div class="subtask-progress" v-if="todo.subtasks && todo.subtasks.length">
@@ -168,6 +171,7 @@
                           <span class="deadline" :class="{ expired: isExpired(todo.deadline) }">
                             {{ todo.deadline ? '截止：' + formatDate(todo.deadline) : '' }}
                           </span>
+                          <el-text type="success">{{ todo.project }}</el-text>
                         </div>
                       </div>
 
@@ -313,18 +317,12 @@
       </div>
 
       <!-- Footer页脚 -->
-      <footer class="app-footer">
-        <span>已完成 0 / 共 0</span>
-        <div class="actions">
-          <span class="tip">支持多选批量操作</span>
-          <el-button text disabled>完成</el-button>
-          <el-button text disabled type="danger">删除</el-button>
-        </div>
-      </footer>
+      <LayoutFooter></LayoutFooter>
     </div>
 
-    <!-- 引入 Dialog -->
-    <CreateTaskDialog v-model:visible="dialogVisible" @create="saveTask" :task="editingTask" />
+    <!-- 引入各类Dialog -->
+    <CreateTaskDialog v-model:visible="dialogVisible" @create="saveTask" :task="editingTask" :tagOptions="tagOptions"
+      :projectOptions="projectOptions" @update:tagOptions="handleTitleUpdate" />
     <TodoContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y"
       @edit="editTask(contextMenu.task)" @delete="confirmDelete(contextMenu.task.id)" @copy="copyTask"
       @close="contextMenu.visible = false" @create="createTask" />
@@ -337,16 +335,33 @@
 
 <script setup>
 
-import { ref, computed, watch, reactive } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import CreateTaskDialog from "./components/CreateTaskDialog.vue";
 import TodoContextMenu from "@/components/TodoContextMenu.vue";
 import SubtaskDialog from './components/SubtaskDialog.vue';
 import CreateTagDialog from "./components/CreateTagDialog.vue";
 import CreateProjectDialog from "./components/CreateProjectDialog.vue";
+import { Delete, Edit, Setting } from '@element-plus/icons-vue'
+import LayoutFooter from "./LayoutFooter.vue";
+/**
+ * 挂载程序接口 Add By xuzhenyu 2026-02-12
+ */
+onMounted(() => {
+  timer = setInterval(() => {
+    currentTime.value = new Date()
+  }, 3600000) // 1小时 = 3600000毫秒
+})
+
+/**
+ * 卸载程序接口 Add By xuzhenyu 2026-02-12
+ */
+onUnmounted(() => {
+  if (timer) {
+    clearInterval(timer)
+  }
+})
 
 
-//
-const dragIndex = ref(null);
 // 控制 Dialog 显示
 const dialogVisible = ref(false);
 // 编辑中的任务（null表示新建）
@@ -689,8 +704,9 @@ function createTask() {
   dialogVisible.value = true;
 }
 
-// ==拖拽每个任务 Created by Zane Xu 2025-12-19==
-//开始拖拽
+
+/** 1. 拖拽索引 Created by Zane Xu 2025-12-19  */
+const dragIndex = ref(null);
 function onDragStart(index) {
   dragIndex.value = index;
 }
@@ -918,7 +934,9 @@ function saveSubtask(title) {
   subtaskDialogVisible.value = false;
 }
 
-//** 时间日期展示以及复制功能使用 Added By Zane Xu 2026-02-02 */
+/**
+ * 1.时间日期展示以及复制功能使用 Added By Zane Xu 2026-02-02
+*/
 const currentTime = ref(new Date())
 // 格式化时间的计算属性
 const formattedTime = computed(() => {
@@ -931,6 +949,8 @@ const formattedTime = computed(() => {
 
   return `${year}年${month}月${day}日 ${weekday}`
 })
+let timer = null
+
 // 复制到剪贴板
 const copyTimeToClipboard = async (value) => {
   /**
@@ -956,8 +976,11 @@ const copyTimeToClipboard = async (value) => {
 /**
  * 1，标签窗口的增加 Added By Zane Xu 2026-02-02
 */
-// 使用ref包装
-const tagOptions = ref(JSON.parse(localStorage.getItem("tagOptionsList")) || ["祈福医院信息化建设", "孙逸仙南北院区建设", "其他"]);
+const tagOptions = ref(JSON.parse(localStorage.getItem("tagOptionsList")) || [
+  { name: "祈福医院信息化建设", color: "#409EFF", fontColor: '#ffffff' },
+  { name: "孙逸仙南北院区建设", color: "#67C23A", fontColor: '#ffffff' },
+  { name: "其他", color: "#909399", fontColor: '#ffffff' }
+])
 const dialogTagVisible = ref(false)
 const loadTagsOptions = () => {
   const raw = localStorage.getItem("tagOptionsList");
@@ -973,36 +996,80 @@ const openAddTagDialog = () => {
   dialogTagVisible.value = true
 }
 // 处理添加标签
-const handleAddTag = (tagName) => {
-  if (tagName) {
-    tagOptions.value.push(tagName)
-    ElMessage.success(`标签 "${tagName}" 添加成功`)
+const handleAddTag = (tagData) => {
+  if (tagData) {
+    tagOptions.value.push(tagData)
+    ElMessage.success(`标签 "${tagData.name}" 添加成功`)
   }
 }
-// 删除标签
+
+
+/**
+ * 删除标签
+ * @param {number} index - 标签在列表中的索引位置
+ */
 const removeTag = (index) => {
-  const tagName = tagOptions[index]
+  const tagName = tagOptions.value[index].name
+
   ElMessageBox.confirm(
-    `确定要删除标签 "${tagName}" 吗？`,
-    '提示',
+    `确定要删除标签 "${tagName}" 吗？删除后将无法恢复。`,
+    '删除确认',
     {
-      confirmButtonText: '确定',
+      confirmButtonText: '删除',
       cancelButtonText: '取消',
       type: 'warning',
+      confirmButtonClass: 'el-button--danger',
+      beforeClose: (action, instance, done) => {
+        if (action === 'confirm') {
+          instance.confirmButtonLoading = true
+          // 这里可以添加删除前的验证逻辑
+          setTimeout(() => {
+            done()
+            instance.confirmButtonLoading = false
+          }, 300)
+        } else {
+          done()
+        }
+      }
     }
   ).then(() => {
+    // 执行删除操作
     tagOptions.value.splice(index, 1)
-    ElMessage.success('标签删除成功')
+
+    // 显示成功提示
+    ElMessage({
+      message: `标签 "${tagName}" 已成功删除`,
+      type: 'success',
+      duration: 2000,
+      offset: 20
+    })
+
+    // 可选：触发标签更新事件
+    // emit('tag-updated', tagOptions.value)
+
   }).catch(() => {
-    // 取消删除
+    // 用户取消删除
+    ElMessage({
+      message: '已取消删除操作',
+      type: 'info',
+      duration: 1500,
+      offset: 20
+    })
   })
+}
+/**
+ * 1.标签窗口的增加 Added By Zane Xu 2026-02-02
+ */
+function handleTitleUpdate(newTitle) {
+  // console.log('收到新标题:', newTitle)
+  tagOptions.value.push(newTitle)
 }
 loadTagsOptions()
 
 /**
  * 1.项目窗口的增加 Added By Zane Xu 2026-02-04
  */
-const dialogProjectVisible = ref(false)
+const dialogProjectVisible = ref(false) //
 const projectOptions = ref(JSON.parse(localStorage.getItem("porjectOptionsList")) || ["学习", "工作", "生活"])
 const loadProjectOptions = () => {
   const raw = localStorage.getItem("porjectOptionsList")
@@ -1010,6 +1077,7 @@ const loadProjectOptions = () => {
     projectOptions.value = JSON.parse(raw)
   }
 };
+
 watch(projectOptions, (newVal) => {
   localStorage.setItem("porjectOptionsList", JSON.stringify(newVal))
 }, { deep: true })
@@ -1024,6 +1092,7 @@ const handleAddProject = (projectName) => {
   }
 }
 loadProjectOptions()
+
 </script>
 
 <style lang="scss" scoped></style>
