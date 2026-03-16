@@ -34,3 +34,9 @@ coverage
 
 # Vitest
 __screenshots__/
+
+# 发布包
+发布包/
+
+# 生成文件夹
+dist/
