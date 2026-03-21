@@ -6,7 +6,7 @@
         <h2 class="logo">Todo Pro</h2>
         <span class="current-view">所有任务</span>
         <el-tag size="small" type="warning">PC 管理版</el-tag>
-        <el-tag @click="copyTimeToClipboard(formattedTime)"> {{ formattedTime }}</el-tag>
+        <el-tag class="copy-btn" @click="copyTimeToClipboard(formattedTime)"> {{ formattedTime }}</el-tag>
       </div>
 
       <div class="center">
@@ -15,12 +15,21 @@
 
       <div class="right">
         <el-button type="primary" @click="openDialog">新建任务</el-button>
-        <el-button>新建项目</el-button>
         <el-button @click="exportJson">导出</el-button>
         <el-button @click="triggerImport">导入</el-button>
         <input ref="fileInput" type="file" accept="application/json" style="display: none" @change="importJson" />
         <el-button @click="refreshTodos">刷新</el-button>
-        <el-button color="#626aef" type="primary" :icon="Setting">参数控制</el-button>
+        <router-link to="/config">
+          <el-button color="#626aef" type="primary" :icon="Setting">
+            参数控制
+          </el-button>
+        </router-link>
+        <el-button @click="handleToggleFullScreen">
+          <el-icon>
+            <FullScreen />
+          </el-icon>
+          {{ isFullScreen ? '退出全屏' : '全屏模式' }}
+        </el-button>
         <span class="app-version">版本: v{{ currentVersion }}</span>
         <el-avatar size="small">U</el-avatar>
       </div>
@@ -46,7 +55,9 @@
                 type="primary">新增项目</el-button></h4>
 
             <ul>
-              <li v-for="(project, index) in projectOptions" :key="index">{{ project }}</li>
+              <li v-for="(project, index) in projectOptions" :key="index">{{ project }}
+                <span> {{ getProjectCount(project) }} </span>
+              </li>
             </ul>
           </div>
 
@@ -322,7 +333,8 @@
 
     <!-- 引入各类Dialog -->
     <CreateTaskDialog v-model:visible="dialogVisible" @create="saveTask" :task="editingTask" :tagOptions="tagOptions"
-      :projectOptions="projectOptions" @update:tagOptions="handleTitleUpdate" />
+      :projectOptions="projectOptions" @update:tagOptions="handleTitleUpdate"
+      @update:projectOptions="handleAddProject" />
     <TodoContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y"
       @edit="editTask(contextMenu.task)" @delete="confirmDelete(contextMenu.task.id)" @copy="copyTask"
       @close="contextMenu.visible = false" @create="createTask" />
@@ -343,6 +355,10 @@ import CreateTagDialog from "./components/CreateTagDialog.vue";
 import CreateProjectDialog from "./components/CreateProjectDialog.vue";
 import { Delete, Edit, Setting } from '@element-plus/icons-vue'
 import LayoutFooter from "./LayoutFooter.vue";
+import { toggleFullScreen, isFullscreen as checkFullscreen, onFullscreenChange } from '@/utils/fullscreen'
+import Clipboard from 'clipboard'
+
+
 /**
  * 挂载程序接口 Add By xuzhenyu 2026-02-12
  */
@@ -359,13 +375,16 @@ onUnmounted(() => {
   if (timer) {
     clearInterval(timer)
   }
+  unsubscribe() // 清理监听
 })
 
 
 // 控制 Dialog 显示
 const dialogVisible = ref(false);
+
 // 编辑中的任务（null表示新建）
 const editingTask = ref(null);
+
 // 菜单控制器
 const contextMenu = ref({
   visible: false,
@@ -385,6 +404,7 @@ const searchText = ref("");
 // Todo List
 const todos = ref(JSON.parse(localStorage.getItem("todo_list") || "[]"));
 
+const isFullScreen = ref(checkFullscreen())
 
 // 从 localStorage 加载
 const STORAGE_KEY = "todo_list";
@@ -585,10 +605,6 @@ const activeTodos = computed(() => {
       return da - db;
     });
   }
-
-
-
-
   return list;
 });
 
@@ -888,9 +904,6 @@ function onCompletedChange(todo) {
   }
 }
 
-
-
-
 function removeSubtask(subId) {
   selectedTask.value.subtasks =
     selectedTask.value.subtasks.filter(s => s.id !== subId);
@@ -952,25 +965,30 @@ const formattedTime = computed(() => {
 let timer = null
 
 // 复制到剪贴板
-const copyTimeToClipboard = async (value) => {
-  /**
-   * 1.复制到剪切板中
-  */
-  try {
-    // 使用现代浏览器的Clipboard API
-    await navigator.clipboard.writeText(value)
+// 在组件中使用
+const copyTimeToClipboard = (value) => {
+  const clipboard = new Clipboard('.copy-btn', { // 假设你的按钮有copy-btn类
+    text: () => value
+  })
+
+  clipboard.on('success', () => {
     ElNotification({
       title: '提示',
-      message: `复制成功${formattedTime.value}`,
+      message: `复制成功: ${value}`,
       type: 'success',
     })
-  } catch (err) {
+    clipboard.destroy()
+  })
+
+  clipboard.on('error', (err) => {
     ElNotification({
-      title: '提示',
-      message: `${err.message}`,
+      title: '错误',
+      message: '复制失败，请手动复制',
       type: 'error',
     })
-  }
+    console.error('复制失败:', err)
+    clipboard.destroy()
+  })
 }
 
 /**
@@ -1068,6 +1086,7 @@ loadTagsOptions()
 
 /**
  * 1.项目窗口的增加 Added By Zane Xu 2026-02-04
+ *
  */
 const dialogProjectVisible = ref(false) //
 const projectOptions = ref(JSON.parse(localStorage.getItem("porjectOptionsList")) || ["学习", "工作", "生活"])
@@ -1092,6 +1111,36 @@ const handleAddProject = (projectName) => {
   }
 }
 loadProjectOptions()
+/**
+ * 全屏切换功能 Added By Zane Xu 2026-03-16
+ */
+
+// 响应式全屏状态
+const isFullScreenActive = ref(false)
+
+// 切换全屏
+const handleToggleFullScreen = () => {
+  toggleFullScreen() // 默认全屏整个文档
+}
+
+// 监听全屏变化
+const unsubscribe = onFullscreenChange((fullscreen) => {
+  isFullScreenActive.value = fullscreen
+  ElMessage.success('全屏状态:' + (fullscreen ? '已全屏' : '已退出'))
+})
+
+//
+const updateProject = (newProject) => {
+  projectOptions.value = newProject
+}
+
+/**
+ * 计算左侧项目的具体数量 Added By Zane Xu 2026-03-21
+ * @param {string} projectName - 项目名称
+ */
+const getProjectCount = (projectName) => {
+  return filteredTodos.value.filter(todo => todo.project === projectName).length
+}
 
 </script>
 

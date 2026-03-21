@@ -19,7 +19,23 @@
           <label>项目</label>
           <el-select v-model="form.project" placeholder="选择项目">
             <el-option v-for="(value, index) in projectOptions" :key="index" :label="value" :value="value" />
+
+            <template #footer>
+              <template v-if="!showCustomInput">
+                <el-button type="text" size="small" @click="showCustomInput = true">自定义添加</el-button>
+              </template>
+              <template v-else>
+                <div class="custom-input-area">
+                  <el-input v-model="newTag" placeholder="请输入标签名称" size="small" class="custom-input"
+                    @keyup.enter="addTag" clearable />
+
+                  <el-button type="text" size="small" @click="addTag">添加</el-button>
+
+                </div>
+              </template>
+            </template>
           </el-select>
+
         </div>
 
         <div class="form-item">
@@ -83,9 +99,9 @@
 </template>
 
 <script setup>
-import { reactive, watch, defineProps, defineEmits } from "vue";
+import { reactive, watch, defineProps, defineEmits, ref } from "vue";
 
-const emit = defineEmits(["update:visible", "create", "update:tagOptions"]);
+const emit = defineEmits(["update:visible", "create", "update:tagOptions", "update:projectOptions"]);
 
 const props = defineProps({
   visible: Boolean,
@@ -190,6 +206,17 @@ function addSubtask() {
 function removeSubtask(index) {
   form.subtasks.splice(index, 1);
 }
+
+const newTag = ref('')
+const showCustomInput = ref(false)
+
+// 添加标签方法 传值给父组件更新标签列表
+const addTag = () => {
+  emit('update:projectOptions', newTag.value)
+  SharedWorker.value = false
+}
+
+
 </script>
 
 <style lang="scss" scoped>

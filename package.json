@@ -16,6 +16,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
     "axios": "^1.13.6",
+    "clipboard": "^2.0.11",
     "element-plus": "^2.12.0",
     "pinia": "^3.0.4",
     "pnpm": "^10.26.1",

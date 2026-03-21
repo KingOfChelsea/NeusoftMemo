@@ -1,27 +1,66 @@
 <template>
   <div class="config-container">
     <!-- 顶部操作栏 -->
-    <div class="config-header">
-      <h2>系统配置</h2>
-      <div class="header-actions">
-        <el-button @click="saveConfig" type="primary" :loading="saving">
-          <el-icon>
-            <Check />
+    <div class="config-header-container">
+      <div class="config-header">
+        <!-- 左侧标题区域 -->
+        <div class="header-left">
+          <el-icon class="header-icon" :size="24">
+            <Setting />
           </el-icon>
-          保存配置
-        </el-button>
-        <el-button @click="resetConfig">
-          <el-icon>
-            <Refresh />
-          </el-icon>
-          重置
-        </el-button>
-        <el-button @click="toggleFullScreen">
-          <el-icon>
-            <FullScreen />
-          </el-icon>
-          {{ isFullScreen ? '退出全屏' : '全屏模式' }}
-        </el-button>
+          <div>
+            <h1 class="header-title">系统配置</h1>
+            <p class="header-subtitle">管理系统参数和功能设置</p>
+          </div>
+        </div>
+
+
+        <!-- 右侧操作区域 -->
+        <div class="header-actions">
+          <el-button-group>
+            <!-- 系统信息 - 科技紫 -->
+            <el-button color="#CE93D8" :icon="Setting" size="large">
+              系统信息
+            </el-button>
+
+            <!-- 定时任务 - 活力橙 -->
+            <el-button color="#ffcc80 " :icon="Clock" :dark="isDark" @click="openScheduler" size="large">
+              定时任务
+            </el-button>
+
+            <!-- 通知设置 - 深海蓝 -->
+            <el-button color="#90caf9" :icon="Bell" @click="openNotifications" size="large">
+              通知设置
+            </el-button>
+
+            <!-- 帮助文档 - 自然绿 -->
+            <el-button color="#a5d6a7 " :icon="QuestionFilled" @click="openHelp" size="large">
+              帮助文档
+            </el-button>
+          </el-button-group>
+          <!-- 主操作按钮组 -->
+          <el-button-group>
+            <el-button @click="saveConfig" type="primary" :icon="Check" :loading="saving" size="large">
+              保存配置
+            </el-button>
+            <el-button @click="resetConfig" :icon="Refresh" size="large">
+              重置
+            </el-button>
+          </el-button-group>
+
+          <!-- 辅助操作按钮组 -->
+          <el-button-group>
+            <el-button @click="toggleFullScreen" :icon="FullScreen" :type="isFullScreen ? 'warning' : 'default'"
+              size="large">
+              {{ isFullScreen ? '退出全屏' : '全屏' }}
+            </el-button>
+            <el-button @click="goBack" type="primary" :icon="Back" size="large" plain>
+              返回首页
+            </el-button>
+
+          </el-button-group>
+
+        </div>
       </div>
     </div>
 
@@ -134,6 +173,9 @@
         </div>
       </el-scrollbar>
     </div>
+
+    <LayoutFooter></LayoutFooter>
+
   </div>
 </template>
 
@@ -141,6 +183,11 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useConfigStore } from '@/stores/Config'
 import ConfigSections from './components/ConfigSections.vue'
+import { Setting, Check, Refresh, FullScreen, Back, Clock, Bell, QuestionFilled } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+import LayoutFooter from '../Layout/LayoutFooter.vue'
+
+
 // 响应式数据
 const configFormRef = ref(null)
 const isFullScreen = ref(false)
@@ -187,6 +234,9 @@ const configForm = reactive({
 
 // 保存原始配置
 let originalConfig = null
+
+// 路由实例
+const router = useRouter()
 
 // 生命周期
 onMounted(async () => {
@@ -329,6 +379,11 @@ const exportConfig = () => {
     duration: 2000
   })
 }
+
+// 返回上一页
+const goBack = () => {
+  router.push('/')
+}
 </script>
 
 <style scoped>
@@ -339,26 +394,78 @@ const exportConfig = () => {
   background-color: #f0f2f5;
 }
 
-.config-header {
-  padding: 20px 24px;
+.config-header-container {
+  position: sticky;
+  top: 0;
   background: white;
-  border-bottom: 1px solid #e4e7ed;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 0 20px;
+  border-bottom: 1px solid var(--el-border-color-lighter);
 }
 
-.config-header h2 {
+.config-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  max-width: 1700px;
+  margin: 0 auto;
+  padding: 16px 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  color: var(--el-color-primary);
+  background: rgba(var(--el-color-primary-rgb), 0.1);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.header-title {
   margin: 0;
-  font-size: 24px;
-  color: #303133;
+  font-size: 20px;
   font-weight: 600;
+  color: var(--el-text-color-primary);
+  line-height: 1.4;
+}
+
+.header-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  color: var(--el-text-color-regular);
+  opacity: 0.8;
 }
 
 .header-actions {
   display: flex;
+  align-items: center;
   gap: 12px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .config-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .header-left {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .header-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }
 
 .config-content {
