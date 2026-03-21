@@ -30,7 +30,7 @@ const props = defineProps({
     default: false
   },
   // 现有的标签列表，用于验证是否重复
-  existingTags: {
+  existingProjects: {
     type: Array,
     default: () => []
   }
@@ -56,6 +56,12 @@ const formData = reactive({
 const submitForm = async () => {
   if (!formRef.value) return
   const projectName = formData.projectName.trim()
+  // 避免重复项目录入项目
+  console.log(props.existingTags);
+  if (props.existingProjects.includes(projectName)) {
+    ElMessage.error('标签名称已存在')
+    return
+  }
   // 触发添加标签事件
   emit('add-project', projectName)
   resetForm()
@@ -72,6 +78,7 @@ const handleClose = (done) => {
   resetForm()
   done()
 }
+
 </script>
 
 <style scoped></style>

@@ -38,45 +38,50 @@
     <div class="app-container">
       <div class="app-body">
         <!-- Sidebar -->
-        <aside class="sidebar">
-          <div class="section">
-            <h4>📅 时间</h4>
-            <ul>
-              <li>收集箱 <span class="count">12</span></li>
-              <li>今天 <span class="count">3</span></li>
-              <li>明天</li>
-              <li>本周</li>
-              <li class="danger">已过期</li>
-            </ul>
-          </div>
-
-          <div class="section">
-            <h4>📁 项目 <el-button text size="small" icon="Plus" @click="openAddProjectDialog"
-                type="primary">新增项目</el-button></h4>
-
-            <ul>
-              <li v-for="(project, index) in projectOptions" :key="index">{{ project }}
-                <span> {{ getProjectCount(project) }} </span>
-              </li>
-            </ul>
-          </div>
-
-          <div class="section">
-            <h4>🎈 标签
-              <el-button icon="Plus" text size="small" type="primary" @click="openAddTagDialog">
-                新建标签
-              </el-button>
-            </h4>
-            <div class="tags">
-              <el-tag v-for="(tag, index) in tagOptions" @close="removeTag(index)" closable :key="index" size="small"
-                :color="tag.color" :style="{ color: tag.fontColor }">
-                {{ tag.name }}
-              </el-tag>
+        <el-scrollbar class="sidebar">
+          <aside>
+            <div class="section">
+              <h4>📅 时间</h4>
+              <ul>
+                <li>收集箱 <span class="count">12</span></li>
+                <li>今天 <span class="count">3</span></li>
+                <li>明天</li>
+                <li>本周</li>
+                <li class="danger">已过期</li>
+              </ul>
             </div>
 
-          </div>
-        </aside>
+            <div class="section">
+              <h4>📁 项目 <el-button text size="small" icon="Plus" @click="openAddProjectDialog"
+                  type="primary">新增项目</el-button></h4>
 
+              <ul>
+                <li v-for="(project, index) in projectOptions" :key="index">{{ project }}
+                  <span> {{ getProjectCount(project) }}
+                    <el-button type="primary" text size="small" @click="removeProject(project)">删除
+                    </el-button>
+                  </span>
+
+                </li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h4>🎈 标签
+                <el-button icon="Plus" text size="small" type="primary" @click="openAddTagDialog">
+                  新建标签
+                </el-button>
+              </h4>
+              <div class="tags">
+                <el-tag v-for="(tag, index) in tagOptions" @close="removeTag(index)" closable :key="index" size="small"
+                  :color="tag.color" :style="{ color: tag.fontColor }">
+                  {{ tag.name }}
+                </el-tag>
+              </div>
+
+            </div>
+          </aside>
+        </el-scrollbar>
         <!-- Main -->
         <main class="main">
           <div class="main-toolbar">
@@ -332,15 +337,28 @@
     </div>
 
     <!-- 引入各类Dialog -->
+
+    <!-- 创建任务对话框 -->
     <CreateTaskDialog v-model:visible="dialogVisible" @create="saveTask" :task="editingTask" :tagOptions="tagOptions"
       :projectOptions="projectOptions" @update:tagOptions="handleTitleUpdate"
       @update:projectOptions="handleAddProject" />
+
+    <!-- 创建右键菜单 -->
     <TodoContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y"
       @edit="editTask(contextMenu.task)" @delete="confirmDelete(contextMenu.task.id)" @copy="copyTask"
       @close="contextMenu.visible = false" @create="createTask" />
+
+
+    <!-- 创建子任务对话框  -->
     <SubtaskDialog v-model="subtaskDialogVisible" :subtask="editingSubtask" @save="saveSubtask" />
+
+    <!-- 创建标签对话框 -->
     <CreateTagDialog v-model="dialogTagVisible" @add-tag="handleAddTag"> </CreateTagDialog>
-    <CreateProjectDialog v-model="dialogProjectVisible" @add-project="handleAddProject"></CreateProjectDialog>
+
+    <!-- 创建项目对话框 -->
+    <CreateProjectDialog v-model="dialogProjectVisible" @add-project="handleAddProject"
+      :existingProjects=projectOptions>
+    </CreateProjectDialog>
   </div>
 </template>
 
@@ -414,6 +432,7 @@ const loadTodos = () => {
     todos.value = JSON.parse(raw);
   }
 };
+
 loadTodos();
 
 // 保存到 localStorage
@@ -965,7 +984,6 @@ const formattedTime = computed(() => {
 let timer = null
 
 // 复制到剪贴板
-// 在组件中使用
 const copyTimeToClipboard = (value) => {
   const clipboard = new Clipboard('.copy-btn', { // 假设你的按钮有copy-btn类
     text: () => value
@@ -1142,6 +1160,41 @@ const getProjectCount = (projectName) => {
   return filteredTodos.value.filter(todo => todo.project === projectName).length
 }
 
+/**
+ * 删除右侧项目方法 Added By Zane Xu 2026-03-21
+ */
+const removeProject = (projectOption) => {
+  ElMessageBox.confirm(
+    `确定要删除项目 "${projectOption}" 吗？删除后将无法恢复。`,
+    '删除确认',
+    {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+      confirmButtonClass: 'el-button--danger',
+      beforeClose: (action, instance, done) => {
+        if (action === 'confirm') {
+          instance.confirmButtonLoading = true // 显示加载状态
+          const updatedProjects = projectOptions.value.filter(item => item !== projectOption) // 创建新的数组，将 projectOption 删除
+          localStorage.setItem("porjectOptionsList", JSON.stringify(updatedProjects)) // 更新本地存储
+          projectOptions.value = updatedProjects // 更新 projectOptions
+
+          setTimeout(() => {
+            instance.confirmButtonLoading = false
+            ElMessage({
+              type: 'success',
+              message: `"${projectOption}" 已删除`
+            })
+            done()
+          }, 300)
+        }
+        else {
+          done()
+        }
+      }
+    }
+  )
+}
 </script>
 
 <style lang="scss" scoped></style>
