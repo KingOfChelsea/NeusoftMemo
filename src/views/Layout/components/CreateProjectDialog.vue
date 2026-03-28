@@ -57,7 +57,6 @@ const submitForm = async () => {
   if (!formRef.value) return
   const projectName = formData.projectName.trim()
   // 避免重复项目录入项目
-  console.log(props.existingTags);
   if (props.existingProjects.includes(projectName)) {
     ElMessage.error('标签名称已存在')
     return

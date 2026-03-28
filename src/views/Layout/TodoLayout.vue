@@ -129,7 +129,7 @@
 
                 <div class="content">
                   <div class="title">
-                    <span class="priority" :class="todo.priority">{{ todo.priority }}</span>
+                    <span class="priority" :class="todo.priority">{{ todo.priority.toUpperCase() }}</span>
                     {{ todo.title }}
                   </div>
 
@@ -178,7 +178,7 @@
                       <!-- 内容 -->
                       <div class="content">
                         <div class="title">
-                          <span class="priority" :class="todo.priority">{{ todo.priority }}</span>
+                          <span class="priority" :class="todo.priority">{{ todo.priority.toUpperCase() }}</span>
                           {{ todo.title }}
                         </div>
 

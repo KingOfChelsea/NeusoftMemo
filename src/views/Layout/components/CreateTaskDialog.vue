@@ -28,9 +28,7 @@
                 <div class="custom-input-area">
                   <el-input v-model="newTag" placeholder="请输入标签名称" size="small" class="custom-input"
                     @keyup.enter="addTag" clearable />
-
                   <el-button type="text" size="small" @click="addTag">添加</el-button>
-
                 </div>
               </template>
             </template>
@@ -165,7 +163,7 @@ function handleClose() {
 function handleCreate() {
   if (!form.title.trim()) {
     // 可以添加提示
-    console.warn("请输入任务标题");
+    ElMessage.error('请输入任务标题')
     return;
   }
   emit("create", { ...form });
@@ -212,6 +210,13 @@ const showCustomInput = ref(false)
 
 // 添加标签方法 传值给父组件更新标签列表
 const addTag = () => {
+  // console.log(props.projectOptions);
+  newTag.value = newTag.value.trim()
+  //  避免重复项目录入项目
+  if (props.projectOptions.includes(newTag.value)) {
+    ElMessage.error('标签名称已存在')
+    return
+  }
   emit('update:projectOptions', newTag.value)
   SharedWorker.value = false
 }
