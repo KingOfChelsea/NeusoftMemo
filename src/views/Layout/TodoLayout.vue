@@ -1,6 +1,6 @@
 <template>
   <div class="todo-app">
-    <!-- Header -->
+    <!-- 眉头栏 Header -->
     <header class="app-header">
       <div class="left">
         <h2 class="logo">Todo Pro</h2>
@@ -10,7 +10,18 @@
       </div>
 
       <div class="center">
-        <el-input placeholder="搜索任务 / 标签 / 项目" v-model="searchText" clearable />
+        <el-input placeholder="搜索任务 / 标签 / 项目" v-model="searchText" clearable>
+          <template #prefix>
+            <el-icon>
+              <Search />
+            </el-icon>
+          </template>
+          <template #suffix>
+            <el-icon>
+              <Filter />
+            </el-icon>
+          </template>
+        </el-input>
       </div>
 
       <div class="right">
