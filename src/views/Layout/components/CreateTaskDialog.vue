@@ -39,10 +39,8 @@
         <div class="form-item">
           <label>优先级</label>
           <el-select v-model="form.priority" placeholder="选择优先级">
-            <el-option label="P1 - 紧急" value="p1" />
-            <el-option label="P2 - 高" value="p2" />
-            <el-option label="P3 - 中" value="p3" />
-            <el-option label="P4 - 低" value="p4" />
+            <el-option v-for="priority in priorityList" :key="priority.value" :label="priority.label"
+              :value="priority.value" />
           </el-select>
         </div>
       </div>
@@ -58,7 +56,8 @@
 
         <div class="form-item">
           <label>截止时间</label>
-          <el-date-picker v-model="form.deadline" type="date" placeholder="选择日期" style="width: 100%" />
+          <el-date-picker v-model="form.deadline" type="date" placeholder="选择日期" style="width: 100%" format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD" />
         </div>
       </div>
 
@@ -105,8 +104,8 @@ const props = defineProps({
   visible: Boolean,
   task: Object, // 编辑时传入任务
   tagOptions: Object, // 标签
-  projectOptions: Object //文件夹
-
+  projectOptions: Object, //文件夹
+  priorityList: Array // 优先级列表
 });
 
 const form = reactive({
@@ -140,8 +139,6 @@ watch(
   () => form.tags,
   (newVal) => {
     newVal.forEach(tag => {
-      console.log(props.tagOptions);
-
       if (!props.tagOptions.some(tag1 => tag1.name === tag)) {
         const newTag = {
           name: tag,        // 标签名
