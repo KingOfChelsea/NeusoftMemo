@@ -37,13 +37,14 @@
 
     <div class="app-container">
       <div class="app-body">
-        <!-- Sidebar -->
+        <!-- 一、侧边栏Sidebar -->
         <el-scrollbar class="sidebar">
           <aside>
+            <!-- 1.时间 Created By ZaneXu 2025 -->
             <div class="section">
               <h4>📅 时间</h4>
               <ul>
-                <li>收集箱 <span class="count">12</span></li>
+                <!-- <li>收集箱 <span class="count">12</span></li> -->
                 <li>今天 <span class="count">3</span></li>
                 <li>明天</li>
                 <li>本周</li>
@@ -51,6 +52,7 @@
               </ul>
             </div>
 
+            <!-- 2.文件 Created By ZaneXu 2025 -->
             <div class="section">
               <h4>📁 项目 <el-button text size="small" icon="Plus" @click="openAddProjectDialog"
                   type="primary">新增项目</el-button></h4>
@@ -66,6 +68,7 @@
               </ul>
             </div>
 
+            <!-- 3.标签 Created By ZaneXu 2025 -->
             <div class="section">
               <h4>🎈 标签
                 <el-button icon="Plus" text size="small" type="primary" @click="openAddTagDialog">
@@ -80,9 +83,36 @@
               </div>
 
             </div>
+
+            <!-- 4.优先级设置 Created By ZaneXu 2026 -->
+            <div class="section">
+              <h4>优先级设置 <el-button text type="primary" size="small" icon="Plus" @click="PriorityHandleAdd">
+                  添加优先级
+                </el-button></h4>
+              <!-- 使用 el-radio-group 实现单选 -->
+              <el-radio-group v-model="currentPriority" class="priority-group">
+                <el-radio v-for="priority in priorityList" :key="priority.value" :value="priority.value">
+                  <div class="priority-content">
+                    <el-tag :type="getTagType(priority.value)" size="small">
+                      {{ priority.label }}
+                    </el-tag>
+                    <span class="priority-desc">{{ priority.desc }}</span>
+                    <span class="priority-actions">
+                      <el-button type="primary" size="small" :icon="Edit" circle class="edit-btn"
+                        @click="proiorityHandleEdit(priority)" title="编辑" />
+                      <el-button v-if="!priority.fixed" type="danger" size="small" :icon="Delete" circle
+                        @click.stop="handleDelete(priority)" title="删除" />
+                      <el-button v-else type="info" size="small" :icon="Lock" circle disabled title="系统默认，不可删除" />
+
+                    </span>
+                  </div>
+                </el-radio>
+              </el-radio-group>
+            </div>
+
           </aside>
         </el-scrollbar>
-        <!-- Main -->
+        <!-- 二、主板块内容Main -->
         <main class="main">
           <div class="main-toolbar">
             <div class="left">
@@ -213,7 +243,7 @@
           </div>
         </main>
 
-        <!-- 侧边栏任务详情看板 -->
+        <!-- 三、侧边栏任务详情看板 -->
         <aside class="detail">
           <!-- 未选中 -->
           <div v-if="!selectedTask" class="detail-empty">
@@ -332,15 +362,15 @@
         </aside>
       </div>
 
-      <!-- Footer页脚 -->
+      <!-- 四、Footer页脚 -->
       <LayoutFooter></LayoutFooter>
     </div>
 
-    <!-- 引入各类Dialog -->
+    <!-- 其他：引入各类Dialog -->
 
     <!-- 创建任务对话框 -->
     <CreateTaskDialog v-model:visible="dialogVisible" @create="saveTask" :task="editingTask" :tagOptions="tagOptions"
-      :projectOptions="projectOptions" @update:tagOptions="handleTitleUpdate"
+      :projectOptions="projectOptions" @update:tagOptions="handleTitleUpdate" :priorityList="priorityList"
       @update:projectOptions="handleAddProject" />
 
     <!-- 创建右键菜单 -->
@@ -359,22 +389,28 @@
     <CreateProjectDialog v-model="dialogProjectVisible" @add-project="handleAddProject"
       :existingProjects=projectOptions>
     </CreateProjectDialog>
+
+    <!-- 创建优先级对话框 --> priorityDialogVisible
+    <PriorityEditDialog v-model:visible="proiorityDialogVisible" :priorityData="editingPriority" :mode="dialogMode"
+      @save="handleSavePriority" />
   </div>
 </template>
 
 
 <script setup>
 
-import { ref, computed, watch, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, reactive } from "vue";
 import CreateTaskDialog from "./components/CreateTaskDialog.vue";
 import TodoContextMenu from "@/components/TodoContextMenu.vue";
 import SubtaskDialog from './components/SubtaskDialog.vue';
 import CreateTagDialog from "./components/CreateTagDialog.vue";
 import CreateProjectDialog from "./components/CreateProjectDialog.vue";
-import { Delete, Edit, Setting } from '@element-plus/icons-vue'
+import { Delete, Edit, Setting, Lock } from '@element-plus/icons-vue'
 import LayoutFooter from "./LayoutFooter.vue";
 import { toggleFullScreen, isFullscreen as checkFullscreen, onFullscreenChange } from '@/utils/fullscreen'
 import Clipboard from 'clipboard'
+import PriorityEditDialog from './components/PriorityEditDialog.vue';
+
 
 
 /**
@@ -600,6 +636,7 @@ const baseFilteredTodos = computed(() => {
   return list;
 });
 
+//
 const activeTodos = computed(() => {
   // 浅拷贝
   let list = todos.value.slice();
@@ -939,7 +976,7 @@ function openSubtaskDialog(subtask = null) {
   subtaskDialogVisible.value = true;
 }
 
-
+// 保存子任务（新建或编辑）
 function saveSubtask(title) {
   if (!title.trim()) return;
 
@@ -1195,6 +1232,111 @@ const removeProject = (projectOption) => {
     }
   )
 }
+
+
+/**
+ * 优先级功能 Added By Zane Xu 2026-03-21
+ */
+// 1.优先级选项配置,如果有本地存储则加载，否则使用默认值
+const priorityList = ref(JSON.parse(localStorage.getItem("priorityList")) || [
+  { value: 'P1', label: 'P1', desc: '紧急', fixed: true },
+  { value: 'P2', label: 'P2', desc: '高', fixed: true },
+  { value: 'P3', label: 'P3', desc: '中', fixed: true },
+  { value: 'P4', label: 'P4', desc: '低', fixed: true },
+  { value: 'P5', label: 'P5', desc: '自定义1', fixed: false },
+  { value: 'P6', label: 'P6', desc: '自定义2', fixed: false }
+]);
+
+// 2.当前优先级
+const currentPriority = ref('P2');
+// 3.标签类型映射
+const getTagType = (priorityValue) => {
+  const typeMap = {
+    'P1': 'danger',     // 红色
+    'P2': 'warning',    // 黄色/橙色
+    'P3': 'success',    // 绿色
+    'P4': 'info',       // 蓝色
+    'P5': 'primary',    // 使用 primary
+    'P6': 'primary'     // 使用 primary
+  };
+  return typeMap[priorityValue] || 'primary';  // 默认返回 primary
+};
+
+// 4.对话框控制
+const proiorityDialogVisible = ref(false);
+
+//
+const dialogMode = ref('add'); // 'add' 或 'edit'
+
+// 6.编辑中的优先级数据
+const editingPriority = reactive({
+  label: '',
+  value: '',
+  desc: ''
+});
+
+// 7.处理删除
+const handleDelete = (priority) => {
+  const index = priorityList.value.findIndex(p => p.value === priority.value);
+  if (index !== -1) {
+    // 如果删除的是当前选中的，清空选择
+    if (currentPriority.value === priority.value) {
+      currentPriority.value = '';
+    }
+    priorityList.value.splice(index, 1);
+    ElMessage.success('删除成功');
+  }
+};
+
+// 8.处理编辑
+const proiorityHandleEdit = (priority) => {
+  dialogMode.value = 'edit';
+  Object.assign(editingPriority, { ...priority }); // 将要编辑的数据赋值给 editingPriority
+  proiorityDialogVisible.value = true;
+};
+
+// 9.保存优先级（添加或编辑）
+const handleSavePriority = (priorityData) => {
+  if (dialogMode.value === 'add') {
+    // 添加新优先级
+    const newPriority = {
+      ...priorityData,
+      fixed: false
+    };
+    priorityList.value.push(newPriority);
+    ElMessage.success('添加成功');
+  } else {
+    // 编辑现有优先级
+    const index = priorityList.value.findIndex(p => p.value === editingPriority.value);
+    if (index !== -1) {
+      // 保持 fixed 状态
+      priorityList.value[index] = {
+        ...priorityData,
+        fixed: priorityList.value[index].fixed
+      };
+      ElMessage.success('更新成功');
+    }
+  }
+};
+
+// 10.处理添加
+const PriorityHandleAdd = () => {
+  dialogMode.value = 'add';
+  // 清空编辑数据
+  Object.assign(editingPriority, {
+    label: '',
+    value: '',
+    desc: ''
+  });
+  proiorityDialogVisible.value = true;
+};
+
+// 11. watch 优先级列表变化，保存到 localStorage
+watch(priorityList, (newVal) => {
+  localStorage.setItem("priorityList", JSON.stringify(newVal));
+}, { deep: true })
+
+
 </script>
 
 <style lang="scss" scoped></style>

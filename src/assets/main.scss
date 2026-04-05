@@ -531,3 +531,20 @@ body {
 .subtask-ul {
   padding: 0;
 }
+.priority-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+/* 确保每个选项独占一行 */
+.priority-radio {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.priority-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
