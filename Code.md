@@ -1,10 +1,14 @@
 # Vue常见代码	
 
+[TOC]
 
 
-## 1.父传子实现
 
-### 1.1父组件通讯
+## Vue架构类
+
+### 1.父传子实现
+
+#### 1.1父组件通讯
 
 ```vue
 <template>
@@ -51,7 +55,7 @@ function updateCount() {
 </script>
 ```
 
-### 1.2子组件实现
+#### 1.2子组件实现
 
 ```vue
 <template>
@@ -96,9 +100,9 @@ console.log(props.count) // 访问props
 </script>
 ```
 
-## 2.子传父通讯
+### 2.子传父通讯
 
-### 2.1 子组件
+#### 2.1 子组件
 
 ```vue
 <template>
@@ -170,7 +174,7 @@ function triggerCustomEvent() {
 
 ```
 
-### 2,2 父组件实现
+#### 2,2 父组件实现
 
 ```vue
 <template>
@@ -227,12 +231,12 @@ function handleCustomEvent(data) {
 
 ```
 
-## 3.子传父Vue3特性版本
+### 3.子传父Vue3特性版本
 
-### 3.1 多v-model绑定（Vue3新特性）
+#### 3.1 多v-model绑定（Vue3新特性）
 
 ```vue
-// ChildComponent.vue
+// ChildComponent.vue 子组件写法
 <script setup>
 defineProps(['firstName', 'lastName'])
 const emit = defineEmits(['update:firstName', 'update:lastName'])
@@ -267,5 +271,19 @@ const lastName = ref('三')
     v-model:lastName="lastName"
   />
 </template>
+```
+
+## JS代码类
+
+### 1 数组类
+
+#### 1.1 数组中是否包含重复内容
+
+- searchElement：要查找的元素。
+
+- fromIndex（可选）：从该索引位置开始查找，默认为 0。如果为负值，则从 array.length + fromIndex开始查找。
+
+```js
+array.includes(searchElement, fromIndex)
 ```
 

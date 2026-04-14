@@ -1,6 +1,6 @@
 <template>
   <div class="todo-app">
-    <!-- 眉头栏 Header -->
+    <!-- 1.眉头栏 Header -->
     <header class="app-header">
       <div class="left">
         <h2 class="logo">Todo Pro</h2>
@@ -8,7 +8,7 @@
         <el-tag size="small" type="warning">PC 管理版</el-tag>
         <el-tag class="copy-btn" @click="copyTimeToClipboard(formattedTime)"> {{ formattedTime }}</el-tag>
       </div>
-
+      <!-- 1.1搜索框 Search -->
       <div class="center">
         <el-input placeholder="搜索任务 / 标签 / 项目" v-model="searchText" clearable>
           <template #prefix>
@@ -23,7 +23,7 @@
           </template>
         </el-input>
       </div>
-
+      <!-- 1.2 工具栏 Toolbar -->
       <div class="right">
         <el-button type="primary" @click="openDialog">新建任务</el-button>
         <el-button @click="exportJson">导出</el-button>
@@ -46,6 +46,7 @@
       </div>
     </header>
 
+    <!-- 2.内容 Body -->
     <div class="app-container">
       <div class="app-body">
         <!-- 一、侧边栏Sidebar -->
@@ -55,11 +56,22 @@
             <div class="section">
               <h4>📅 时间</h4>
               <ul>
-                <!-- <li>收集箱 <span class="count">12</span></li> -->
-                <li>今天 <span class="count">3</span></li>
-                <li>明天</li>
-                <li>本周</li>
-                <li class="danger">已过期</li>
+                <li>
+                  今天
+                  <span class="count">{{ timeStats.today }}</span>
+                </li>
+                <li>
+                  明天
+                  <span class="count">{{ timeStats.tomorrow }}</span>
+                </li>
+                <li>
+                  本周
+                  <span class="count">{{ timeStats.thisWeek }}</span>
+                </li>
+                <li class="danger">
+                  已过期
+                  <span class="count">{{ timeStats.overdue }}</span>
+                </li>
               </ul>
             </div>
 
@@ -170,7 +182,9 @@
 
                 <div class="content">
                   <div class="title">
-                    <span class="priority" :class="todo.priority">{{ todo.priority.toUpperCase() }}</span>
+                    <span class="priority" :class="todo.priority">
+                      <el-tag effect="light" type="success" size="large" hi>{{ todo.priority.toUpperCase() }}</el-tag>
+                    </span>
                     {{ todo.title }}
                   </div>
 
@@ -219,7 +233,10 @@
                       <!-- 内容 -->
                       <div class="content">
                         <div class="title">
-                          <span class="priority" :class="todo.priority">{{ todo.priority.toUpperCase() }}</span>
+                          <span class="priority" :class="todo.priority">
+                            <el-tag effect="effect" type="danger" size="large">{{ todo.priority.toUpperCase()
+                            }}</el-tag>
+                          </span>
                           {{ todo.title }}
                         </div>
 
@@ -355,11 +372,19 @@
                     @dblclick="openSubtaskDialog(sub)">
                     <el-checkbox v-model="sub.completed">
                       {{ sub.title || "未命名子任务" }}
-                      <el-button text type="danger" size="small" @click="removeSubtask(sub.id)">
-                        <el-icon>
-                          <Delete />
-                        </el-icon>
-                      </el-button>
+                      <el-button-group>
+                        <el-button size="small" @click="removeSubtask(sub.id)">
+                          删除<el-icon>
+                            <Delete />
+                          </el-icon>
+                        </el-button>
+                        <el-button size="small">附件
+                          <el-icon>
+                            <Paperclip />
+                          </el-icon>
+                        </el-button>
+                      </el-button-group>
+
                     </el-checkbox>
 
                   </li>
@@ -377,7 +402,7 @@
       <LayoutFooter></LayoutFooter>
     </div>
 
-    <!-- 其他：引入各类Dialog -->
+    <!-- 3.其他：引入各类Dialog -->
 
     <!-- 创建任务对话框 -->
     <CreateTaskDialog v-model:visible="dialogVisible" @create="saveTask" :task="editingTask" :tagOptions="tagOptions"
@@ -421,6 +446,7 @@ import LayoutFooter from "./LayoutFooter.vue";
 import { toggleFullScreen, isFullscreen as checkFullscreen, onFullscreenChange } from '@/utils/fullscreen'
 import Clipboard from 'clipboard'
 import PriorityEditDialog from './components/PriorityEditDialog.vue';
+import { getTaskStatsByTime } from '@/utils/taskUtils';
 
 
 
@@ -1248,6 +1274,7 @@ const removeProject = (projectOption) => {
 /**
  * 优先级功能 Added By Zane Xu 2026-03-21
  */
+
 // 1.优先级选项配置,如果有本地存储则加载，否则使用默认值
 const priorityList = ref(JSON.parse(localStorage.getItem("priorityList")) || [
   { value: 'P1', label: 'P1', desc: '紧急', fixed: true },
@@ -1308,6 +1335,7 @@ const proiorityHandleEdit = (priority) => {
 
 // 9.保存优先级（添加或编辑）
 const handleSavePriority = (priorityData) => {
+  debugger
   if (dialogMode.value === 'add') {
     // 添加新优先级
     const newPriority = {
@@ -1347,6 +1375,13 @@ watch(priorityList, (newVal) => {
   localStorage.setItem("priorityList", JSON.stringify(newVal));
 }, { deep: true })
 
+/**
+ * 截止日期的任务统计功能 Added By Zane Xu 2026-04-05
+ */
+// 使用公共函数计算统计
+const timeStats = computed(() => {
+  return getTaskStatsByTime(todos.value);
+});
 
 </script>
 

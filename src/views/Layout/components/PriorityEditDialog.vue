@@ -46,9 +46,7 @@
 
 <script setup>
 import { PriceTag, Key } from '@element-plus/icons-vue';
-import { ElMessage } from 'element-plus';
 import { watch, computed, ref, reactive, nextTick } from 'vue';
-
 // 0.定义变量
 
 // 表单引用

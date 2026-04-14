@@ -3,17 +3,17 @@
     class="create-task-dialog" @keydown.enter.prevent="handleKeydown" @keydown.esc.prevent="handleClose">
     <!-- 改为一个 @keydown.enter.prevent -->
     <div class="dialog-body">
-      <!-- 标题 -->
+      <!-- 1.标题 -->
       <div class="form-item title">
         <el-input v-model="form.title" placeholder="请输入任务标题（必填）" size="large" />
       </div>
 
-      <!-- 描述 -->
+      <!-- 2.描述 -->
       <div class="form-item">
         <el-input type="textarea" :rows="3" v-model="form.description" placeholder="任务描述（可选）" />
       </div>
 
-      <!-- 项目 / 优先级 -->
+      <!-- 3.项目 / 优先级 -->
       <div class="form-row">
         <div class="form-item">
           <label>项目</label>
@@ -36,16 +36,35 @@
 
         </div>
 
+        <!-- 4.优先级 -->
         <div class="form-item">
-          <label>优先级</label>
-          <el-select v-model="form.priority" placeholder="选择优先级">
-            <el-option v-for="priority in priorityList" :key="priority.value" :label="priority.label"
-              :value="priority.value" />
+          <label style="display: flex; align-items: center;">优先级
+            <!-- <span>
+              <el-button type='primary' size="small" text @click="openPriorityDialog">
+                <el-icon>
+                  <Plus />
+                </el-icon>
+              </el-button>
+            </span> -->
+          </label>
+
+          <el-select v-model="form.priority" placeholder="选择优先级" clearable>
+            <el-option v-for="priority in priorityList" :key="priority.value"
+              :label="priority.label + ' - ' + priority.desc" :value="priority.label + ' - ' + priority.desc">
+              <div class="priority-option">
+                <el-tag :type="getTagType(priority.value)" size="small" :effect="priority.fixed ? 'dark' : 'light'"
+                  class="priority-badge">
+                  {{ priority.label }}
+                </el-tag>
+                <span class="priority-desc">{{ priority.desc }}</span>
+              </div>
+            </el-option>
           </el-select>
         </div>
+
       </div>
 
-      <!-- 标签 / 截止时间 -->
+      <!-- 5. 标签 / 截止时间 -->
       <div class="form-row">
         <div class="form-item">
           <label>标签</label>
@@ -93,10 +112,15 @@
       </div>
     </template>
   </el-dialog>
+
+  <!-- 其他：创建优先级对话框 -->
+  <PriorityEditDialog v-model:visible="showPriorityDialog" :mode="dialogMode" />
+
 </template>
 
 <script setup>
 import { reactive, watch, defineProps, defineEmits, ref } from "vue";
+import PriorityEditDialog from "./PriorityEditDialog.vue";
 
 const emit = defineEmits(["update:visible", "create", "update:tagOptions", "update:projectOptions"]);
 
@@ -218,6 +242,30 @@ const addTag = () => {
   SharedWorker.value = false
 }
 
+const getTagType = (value) => {
+  const typeMap = {
+    'P1': 'danger',
+    'P2': 'warning',
+    'P3': 'success',
+    'P4': 'info'
+  };
+  return typeMap[value] || 'primary';
+};
+
+/**
+ * 创建优先级对话框组件/实现逻辑 Added By Zane Xu 2026-04-06
+ */
+
+// 0.对话框控制基本变量
+const showPriorityDialog = ref(false);
+const dialogMode = ref('add'); // 'add' 或 'edit'
+
+
+// 1. 打开优先级对话框
+const openPriorityDialog = () => {
+  dialogMode.value = 'add'; // 默认添加模式
+  showPriorityDialog.value = true;
+};
 
 </script>
 
@@ -330,5 +378,24 @@ const addTag = () => {
       gap: 8px;
     }
   }
+}
+
+.priority-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.priority-badge {
+  min-width: 40px;
+  justify-content: center;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.priority-desc {
+  color: #606266;
+  font-size: 13px;
 }
 </style>
