@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/Layout/TodoLayout.vue'
 import ConfigIndex from '@/views/Config/Index.vue'
+import StatisticsIndex from '@/views/Statistics/Index.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -13,6 +14,11 @@ const router = createRouter({
       path: '/config',
       name: 'Config',
       component: ConfigIndex,
+    },
+    {
+      path: '/statistics',
+      name: 'Statistics',
+      component: StatisticsIndex,
     },
   ],
 })

@@ -3,16 +3,14 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 
 const httpInstance = axios.create({
-  // baseURL: 'http://localhost:25734/api',
-  baseURL: 'http://localhost:8888/api',
+  baseURL: 'http://localhost:25734/api', // 测试环境
+  // baseURL: 'http://localhost:8888/api', // 正式环境
   timeout: 5000,
 })
 
 // axios请求拦截器
 httpInstance.interceptors.request.use(
   (config) => {
-    console.log(config, '测试')
-
     return config
   },
   (e) => {

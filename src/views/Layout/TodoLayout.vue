@@ -41,6 +41,66 @@
           </el-icon>
           {{ isFullScreen ? '退出全屏' : '全屏模式' }}
         </el-button>
+
+        <!-- 扩展下拉菜单 Added By ZaneXu 2026/4/15 -->
+        <el-dropdown @command="handleDropdownCommand">
+          <el-button>
+            更多
+            <el-icon class="el-icon--right">
+              <arrow-down />
+            </el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="config">
+                <el-icon>
+                  <Paperclip />
+                </el-icon>
+                图片上传
+              </el-dropdown-item>
+              <el-dropdown-item command="fullscreen">
+                <el-icon>
+                  <FullScreen />
+                </el-icon>
+                {{ isFullScreen ? '退出全屏' : '全屏模式' }}
+              </el-dropdown-item>
+              <el-dropdown-item divided command="statistics">
+                <router-link to="/statistics" style="text-decoration: none;">
+                  <el-icon>
+                    <DataLine />
+                  </el-icon>
+                  统计报表
+                </router-link>
+
+              </el-dropdown-item>
+              <el-dropdown-item command="settings">
+                <el-icon>
+                  <Operation />
+                </el-icon>
+                设置
+              </el-dropdown-item>
+              <el-dropdown-item command="help">
+                <el-icon>
+                  <QuestionFilled />
+                </el-icon>
+                帮助文档
+              </el-dropdown-item>
+              <el-dropdown-item divided command="feedback">
+                <el-icon>
+                  <ChatDotSquare />
+                </el-icon>
+                意见反馈
+              </el-dropdown-item>
+              <el-dropdown-item command="about">
+                <el-icon>
+                  <InfoFilled />
+                </el-icon>
+                关于
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <!-- 版本号 Created By ZaneXu 2025 -->
         <span class="app-version">版本: v{{ currentVersion }}</span>
         <el-avatar size="small">U</el-avatar>
       </div>
@@ -126,7 +186,6 @@
                       <el-button v-if="!priority.fixed" type="danger" size="small" :icon="Delete" circle
                         @click.stop="handleDelete(priority)" title="删除" />
                       <el-button v-else type="info" size="small" :icon="Lock" circle disabled title="系统默认，不可删除" />
-
                     </span>
                   </div>
                 </el-radio>
@@ -234,8 +293,8 @@
                       <div class="content">
                         <div class="title">
                           <span class="priority" :class="todo.priority">
-                            <el-tag effect="effect" type="danger" size="large">{{ todo.priority.toUpperCase()
-                            }}</el-tag>
+                            <el-tag effect="light" type="danger" size="large">{{ todo.priority.toUpperCase()
+                              }}</el-tag>
                           </span>
                           {{ todo.title }}
                         </div>
@@ -378,19 +437,16 @@
                             <Delete />
                           </el-icon>
                         </el-button>
-                        <el-button size="small">附件
+                        <el-button size="small" @click="uploadDialogVisible = true">附件
                           <el-icon>
                             <Paperclip />
                           </el-icon>
                         </el-button>
                       </el-button-group>
-
                     </el-checkbox>
-
                   </li>
                 </ul>
                 <el-empty v-else description="暂无子任务" :image-size="60" />
-
               </div>
             </el-scrollbar>
 
@@ -426,9 +482,14 @@
       :existingProjects=projectOptions>
     </CreateProjectDialog>
 
-    <!-- 创建优先级对话框 --> priorityDialogVisible
+    <!-- 创建优先级对话框 -->
     <PriorityEditDialog v-model:visible="proiorityDialogVisible" :priorityData="editingPriority" :mode="dialogMode"
       @save="handleSavePriority" />
+
+    <!--创建附件上传弹窗  -->
+    <UploadFileDialog v-model="uploadDialogVisible" :visible="uploadDialogVisible" @success="handleUploadSuccess"
+      @cancel="handleUploadCancel">
+    </UploadFileDialog>
   </div>
 </template>
 
@@ -447,6 +508,8 @@ import { toggleFullScreen, isFullscreen as checkFullscreen, onFullscreenChange }
 import Clipboard from 'clipboard'
 import PriorityEditDialog from './components/PriorityEditDialog.vue';
 import { getTaskStatsByTime } from '@/utils/taskUtils';
+import UploadFileDialog from "./components/UploadFileDialog.vue";
+// import { useRouter } from 'vue-router'
 
 
 
@@ -1382,6 +1445,70 @@ watch(priorityList, (newVal) => {
 const timeStats = computed(() => {
   return getTaskStatsByTime(todos.value);
 });
+
+/**
+ * 附件上传打开窗口方法 Added By Zane Xu 2026-04-14
+ */
+// 1. 上传窗口控制参数
+const uploadDialogVisible = ref(false);
+// 2. 打开上传窗口方法
+const openUploadDialog = () => {
+  uploadDialogVisible.value = true;
+};
+
+// 上传成功回调
+const handleUploadSuccess = (fileList) => {
+  console.log('上传成功，文件列表：', fileList);
+  // 这里可以处理上传成功后的逻辑，比如更新页面数据
+  uploadDialogVisible.value = false;
+};
+
+// 取消上传回调
+const handleUploadCancel = () => {
+  console.log('用户取消了上传');
+  uploadDialogVisible.value = false;
+};
+
+/**
+ * 下拉菜单集成功能dash Added By Zane Xu 2026-04-15
+ */
+// 下拉菜单命令处理
+const handleDropdownCommand = (command) => {
+  switch (command) {
+    case 'config':
+      console.log('打开配置页面')
+      uploadDialogVisible.value = true
+      break
+    case 'fullscreen':
+      handleToggleFullScreen()
+      break
+    case 'statistics':
+      // 跳转到统计页面
+      // console.log('跳转到统计页面')
+      router.push('/statistics')
+      ElMessage.info('跳转到统计页面')
+      break
+    case 'settings':
+      // 打开设置弹窗
+      console.log('打开设置')
+      ElMessage.info('打开设置')
+      break
+    case 'help':
+      // 打开帮助文档
+      window.open('/help', '_blank')
+      break
+    case 'feedback':
+      // 打开意见反馈
+      console.log('意见反馈')
+      ElMessage.info('打开意见反馈')
+      break
+    case 'about':
+      // 打开关于对话框
+      console.log('关于')
+      ElMessage.info('打开关于对话框')
+      break
+  }
+}
 
 </script>
 

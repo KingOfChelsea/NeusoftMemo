@@ -70,7 +70,7 @@
         <div class="config-sections">
 
           <!-- 高级配置 -->
-          <!-- <el-card class="config-section">
+          <el-card class="config-section">
             <template #header>
               <div class="section-header">
                 <el-icon>
@@ -80,73 +80,73 @@
               </div>
             </template>
 
-<el-form :model="configForm" label-width="150px">
-  <el-collapse v-model="activeCollapse">
-    <el-collapse-item title="API配置" name="api">
-      <el-row :gutter="40">
-        <el-col :xs="24" :sm="12">
-          <el-form-item label="API地址" prop="apiUrl">
-            <el-input v-model="configForm.apiUrl" placeholder="https://api.example.com" clearable />
-          </el-form-item>
-        </el-col>
+            <el-form :model="configForm" label-width="150px">
+              <el-collapse v-model="activeCollapse">
+                <el-collapse-item title="API配置" name="api">
+                  <el-row :gutter="40">
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="API地址" prop="apiUrl">
+                        <el-input v-model="configForm.apiUrl" placeholder="https://api.example.com" clearable />
+                      </el-form-item>
+                    </el-col>
 
-        <el-col :xs="24" :sm="12">
-          <el-form-item label="超时时间" prop="timeout">
-            <el-input-number v-model="configForm.timeout" :min="1000" :max="30000" :step="1000"
-              controls-position="right" />
-            <span class="unit-text">ms</span>
-          </el-form-item>
-        </el-col>
-      </el-row>
-    </el-collapse-item>
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="超时时间" prop="timeout">
+                        <el-input-number v-model="configForm.timeout" :min="1000" :max="30000" :step="1000"
+                          controls-position="right" />
+                        <span class="unit-text">ms</span>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </el-collapse-item>
 
-    <el-collapse-item title="缓存配置" name="cache">
-      <el-row :gutter="40">
-        <el-col :xs="24" :sm="12">
-          <el-form-item label="缓存策略" prop="cacheStrategy">
-            <el-select v-model="configForm.cacheStrategy" placeholder="请选择缓存策略">
-              <el-option label="内存缓存" value="memory" />
-              <el-option label="本地存储" value="localStorage" />
-              <el-option label="混合存储" value="hybrid" />
-            </el-select>
-          </el-form-item>
-        </el-col>
+                <el-collapse-item title="缓存配置" name="cache">
+                  <el-row :gutter="40">
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="缓存策略" prop="cacheStrategy">
+                        <el-select v-model="configForm.cacheStrategy" placeholder="请选择缓存策略">
+                          <el-option label="内存缓存" value="memory" />
+                          <el-option label="本地存储" value="localStorage" />
+                          <el-option label="混合存储" value="hybrid" />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
 
-        <el-col :xs="24" :sm="12">
-          <el-form-item label="缓存时间" prop="cacheTime">
-            <el-input-number v-model="configForm.cacheTime" :min="60" :max="86400" :step="60"
-              controls-position="right" />
-            <span class="unit-text">秒</span>
-          </el-form-item>
-        </el-col>
-      </el-row>
-    </el-collapse-item>
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="缓存时间" prop="cacheTime">
+                        <el-input-number v-model="configForm.cacheTime" :min="60" :max="86400" :step="60"
+                          controls-position="right" />
+                        <span class="unit-text">秒</span>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </el-collapse-item>
 
-    <el-collapse-item title="日志配置" name="log">
-      <el-row :gutter="40">
-        <el-col :xs="24" :sm="12">
-          <el-form-item label="日志级别" prop="logLevel">
-            <el-select v-model="configForm.logLevel" placeholder="请选择日志级别">
-              <el-option label="DEBUG" value="debug" />
-              <el-option label="INFO" value="info" />
-              <el-option label="WARN" value="warn" />
-              <el-option label="ERROR" value="error" />
-            </el-select>
-          </el-form-item>
-        </el-col>
+                <el-collapse-item title="日志配置" name="log">
+                  <el-row :gutter="40">
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="日志级别" prop="logLevel">
+                        <el-select v-model="configForm.logLevel" placeholder="请选择日志级别">
+                          <el-option label="DEBUG" value="debug" />
+                          <el-option label="INFO" value="info" />
+                          <el-option label="WARN" value="warn" />
+                          <el-option label="ERROR" value="error" />
+                        </el-select>
+                      </el-form-item>
+                    </el-col>
 
-        <el-col :xs="24" :sm="12">
-          <el-form-item label="日志保留" prop="logRetention">
-            <el-input-number v-model="configForm.logRetention" :min="1" :max="365" :step="1"
-              controls-position="right" />
-            <span class="unit-text">天</span>
-          </el-form-item>
-        </el-col>
-      </el-row>
-    </el-collapse-item>
-  </el-collapse>
-</el-form>
-</el-card> -->
+                    <el-col :xs="24" :sm="12">
+                      <el-form-item label="日志保留" prop="logRetention">
+                        <el-input-number v-model="configForm.logRetention" :min="1" :max="365" :step="1"
+                          controls-position="right" />
+                        <span class="unit-text">天</span>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </el-collapse-item>
+              </el-collapse>
+            </el-form>
+          </el-card>
           <ConfigSections />
           <!-- 操作按钮组 -->
           <div class="action-buttons">

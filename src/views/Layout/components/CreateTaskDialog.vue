@@ -49,6 +49,7 @@
           </label>
 
           <el-select v-model="form.priority" placeholder="选择优先级" clearable>
+
             <el-option v-for="priority in priorityList" :key="priority.value"
               :label="priority.label + ' - ' + priority.desc" :value="priority.label + ' - ' + priority.desc">
               <div class="priority-option">
@@ -93,10 +94,27 @@
 
         <div v-else class="subtask-list">
           <div class="subtask-item" v-for="(sub, index) in form.subtasks" :key="sub.id">
+            <!-- 选择患者 -->
+            <el-select v-model="sub.assignees" size="small" placeholder="选择或输入相关人"
+              style="width: 300px; margin-right: 10px;" multiple>
+              <el-option v-for="user in allUsers" :key="user.id" :label="user.name + ' - ' + user.department"
+                :value="user.name + ' - ' + user.department">
+                <div style="display: flex; align-items: center;">
+                  <el-avatar :size="20" :src="user.avatar" style="margin-right: 8px;" />
+                  <span>{{ user.name }}</span>
+                  <span style="margin-left: 8px; color: #909399; font-size: 12px;">
+                    {{ user.department }}
+                  </span>
+                </div>
+              </el-option>
+            </el-select>
+
             <el-input v-model="sub.title" placeholder="子任务标题" size="small" style="width: 80%" />
+            <el-button type="primary" :icon="Link" size="small" @click="openUploadDialog(index)">上传</el-button>
             <el-button type="text" size="small" @click="removeSubtask(index)">删除</el-button>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -114,13 +132,19 @@
   </el-dialog>
 
   <!-- 其他：创建优先级对话框 -->
-  <PriorityEditDialog v-model:visible="showPriorityDialog" :mode="dialogMode" />
 
+  <!-- 1.创建优先级对话框 -->
+  <PriorityEditDialog v-model:visible="showPriorityDialog" :mode="dialogMode" />
+  <!-- 2.上传文件对话框 -->
+  <UploadAttachmentDialog v-model="showUploadDialog" :visible="showUploadDialog" @success="handleUploadSuccess"
+    @cancel="handleUploadCancel"></UploadAttachmentDialog>
 </template>
 
 <script setup>
 import { reactive, watch, defineProps, defineEmits, ref } from "vue";
 import PriorityEditDialog from "./PriorityEditDialog.vue";
+import { Link } from "@element-plus/icons-vue";
+import UploadAttachmentDialog from './UploadFileDialog.vue';
 
 const emit = defineEmits(["update:visible", "create", "update:tagOptions", "update:projectOptions"]);
 
@@ -217,7 +241,10 @@ function addSubtask() {
   form.subtasks.push({
     id: Date.now() + Math.random(), // 简单唯一 id
     title: "",
-    completed: false  // 添加完成状态
+    completed: false,  // 添加完成状态
+    Link: [], // 添加关联
+    index: form.subtasks.length, // 记录索引
+    assignees: [] // 存储相关人ID数组
   });
 }
 
@@ -231,7 +258,6 @@ const showCustomInput = ref(false)
 
 // 添加标签方法 传值给父组件更新标签列表
 const addTag = () => {
-  // console.log(props.projectOptions);
   newTag.value = newTag.value.trim()
   //  避免重复项目录入项目
   if (props.projectOptions.includes(newTag.value)) {
@@ -266,6 +292,115 @@ const openPriorityDialog = () => {
   dialogMode.value = 'add'; // 默认添加模式
   showPriorityDialog.value = true;
 };
+
+/**
+ * 2. 打开上传文件对话框
+ */
+// 控制弹窗显示
+const showUploadDialog = ref(false);
+// 当前正在上传的子任务索引
+const currentSubtaskIndex = ref(-1);
+
+// 打开上传对话框，并保存当前子任务索引
+function openUploadDialog(index) {
+  currentSubtaskIndex.value = index;
+  showUploadDialog.value = true;
+}
+// 上传成功回调
+const handleUploadSuccess = (fileList) => {
+  console.log('上传成功，文件列表：', fileList);
+  ElMessage.success('上传成功');
+  showUploadDialog.value = false;
+
+  // 检查索引是否有效
+  if (currentSubtaskIndex.value >= 0 && currentSubtaskIndex.value < form.subtasks.length) {
+    // 将文件添加到对应子任务的 Link 数组
+    if (Array.isArray(fileList)) {
+      // 如果是数组，添加所有文件
+      form.subtasks[currentSubtaskIndex.value].Link.push(...fileList);
+    } else {
+      // 如果是单个文件对象
+      form.subtasks[currentSubtaskIndex.value].Link.push(fileList);
+    }
+
+    console.log('文件已添加到子任务:', currentSubtaskIndex.value, form.subtasks[currentSubtaskIndex.value]);
+  } else {
+    console.error('无效的子任务索引:', currentSubtaskIndex.value);
+  }
+
+  // 重置索引
+  currentSubtaskIndex.value = -1;
+};
+
+// 取消上传回调
+const handleUploadCancel = () => {
+  ElMessage
+  showUploadDialog.value = false;
+};
+
+/**
+ * 3. 子任务添加相关人操作
+ */
+// 用户数据
+const userOptions = ref([])
+const loading = ref(false)
+const allUsers = ref([
+  { id: 1, name: '徐振宇', department: '技术部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+  { id: 2, name: 'NIS', department: '产品部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+  { id: 3, name: 'HIS', department: '设计部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+  { id: 4, name: 'LIS', department: '市场部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+  { id: 5, name: '护理管理', department: '运营部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' }
+])
+
+// 标签颜色配置
+const tagColors = [
+  '#409EFF', '#67C23A', '#E6A23C', '#F56C6C',
+  '#909399', '#8E44AD', '#16A085', '#D35400'
+]
+
+// 根据用户ID获取标签颜色
+const getTagColor = (userId) => {
+  const index = userId % tagColors.length
+  return tagColors[index]
+}
+
+// 搜索用户
+const searchUsers = (query) => {
+  if (query) {
+    loading.value = true
+    // 模拟异步搜索
+    setTimeout(() => {
+      userOptions.value = allUsers.value.filter(user =>
+        user.name.includes(query) || user.department.includes(query)
+      )
+      loading.value = false
+    }, 200)
+  } else {
+    userOptions.value = []
+  }
+}
+
+// 获取相关人详细信息
+const getAssigneeInfo = (assigneeIds) => {
+  return assigneeIds.map(id => {
+    const user = allUsers.value.find(u => u.id === id)
+    return user || { id, name: '未知用户' }
+  })
+}
+
+// 处理相关人变化
+const handleAssigneeChange = (subtask) => {
+  console.log('子任务相关人更新:', subtask)
+  // 这里可以添加其他处理逻辑
+}
+
+// 移除单个相关人
+const removeAssignee = (subtask, userId) => {
+  const index = subtask.assignees.indexOf(userId)
+  if (index > -1) {
+    subtask.assignees.splice(index, 1)
+  }
+}
 
 </script>
 
