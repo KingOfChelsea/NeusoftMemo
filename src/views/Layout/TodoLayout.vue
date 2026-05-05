@@ -196,7 +196,7 @@
             <div class="section">
               <h4>
                 负责人维护
-                <el-button text type="primary" size="small" icon="Plus" @click="showAddDialog = true">
+                <el-button text type="primary" size="small" icon="Plus" @click="addUserDialog">
                   添加
                 </el-button>
               </h4>
@@ -451,15 +451,30 @@
                 <ul class="subtask-ul" v-if="selectedTask.subtasks && selectedTask.subtasks.length">
                   <li v-for="sub in selectedTask.subtasks" :key="sub.id" class="subtask-item"
                     @dblclick="openSubtaskDialog(sub)">
+
                     <el-checkbox v-model="sub.completed">
+
                       {{ sub.title || "未命名子任务" }}
+                      <el-tag style="margin: 0px 5px 0px 5px;" v-for="value in sub.assignees" :key="value"
+                        type="primary">
+                        {{ value }}
+                      </el-tag>
                       <el-button-group>
-                        <el-button size="small" @click="removeSubtask(sub.id)">
-                          删除<el-icon>
-                            <Delete />
-                          </el-icon>
-                        </el-button>
-                        <el-button size="small" @click="uploadDialogVisible = true">附件
+                        <el-popconfirm title="确定要删除这个子任务吗？" confirm-button-text="删除" cancel-button-text="取消"
+                          @confirm="removeSubtask(sub.id)">
+                          <template #reference>
+                            <el-button size="small" type="danger" plain class="action-btn">
+                              删除
+                              <el-icon>
+                                <Delete />
+                              </el-icon>
+                            </el-button>
+                          </template>
+                        </el-popconfirm>
+
+                        <el-button size="small" type="primary" plain class="action-btn"
+                          @click="uploadDialogVisible = true">
+                          附件
                           <el-icon>
                             <Paperclip />
                           </el-icon>
@@ -485,7 +500,7 @@
     <!-- 创建任务对话框 -->
     <CreateTaskDialog v-model:visible="dialogVisible" @create="saveTask" :task="editingTask" :tagOptions="tagOptions"
       :projectOptions="projectOptions" @update:tagOptions="handleTitleUpdate" :priorityList="priorityList"
-      @update:projectOptions="handleAddProject" />
+      @update:projectOptions="handleAddProject" :allUsers="allUsers" />
 
     <!-- 创建右键菜单 -->
     <TodoContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y"
@@ -512,6 +527,9 @@
     <UploadFileDialog v-model="uploadDialogVisible" :visible="uploadDialogVisible" @success="handleUploadSuccess"
       @cancel="handleUploadCancel">
     </UploadFileDialog>
+
+    <!-- 用户信息弹窗 -->
+    <UserDialog v-model:visible="userDialogVisible" @save="handleSaveUser" />
   </div>
 </template>
 
@@ -531,6 +549,7 @@ import Clipboard from 'clipboard'
 import PriorityEditDialog from './components/PriorityEditDialog.vue';
 import { getTaskStatsByTime } from '@/utils/taskUtils';
 import UploadFileDialog from "./components/UploadFileDialog.vue";
+import UserDialog from "./components/UserDialog.vue";
 // import { useRouter } from 'vue-router'
 
 
@@ -1420,7 +1439,7 @@ const proiorityHandleEdit = (priority) => {
 
 // 9.保存优先级（添加或编辑）
 const handleSavePriority = (priorityData) => {
-  debugger
+  // debugger
   if (dialogMode.value === 'add') {
     // 添加新优先级
     const newPriority = {
@@ -1535,14 +1554,32 @@ const handleDropdownCommand = (command) => {
 /**
  * 负责人维护功能 Added By Zane Xu 2026-04-15
  */
-const allUsers = ref([
-  { id: 1, name: '徐振宇', department: '技术部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+// 1. 用户列表
+const allUsers = ref(JSON.parse(localStorage.getItem("userList")) || [
+  { id: 1, name: '徐振宇', department: '技术部', avatar: 'https://iconfont.alicdn.com/p/illus/preview_image/pMhdd5wW6xfB/fcbc3cdc-b4b1-4dd2-8607-bebdc3d2e835.png' },
   { id: 2, name: 'NIS', department: '产品部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
-  { id: 3, name: 'HIS', department: '设计部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
-  { id: 4, name: 'LIS', department: '市场部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
-  { id: 5, name: '护理管理', department: '运营部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' }
+  { id: 3, name: 'HIS', department: '设计部', avatar: 'https://iconfont.alicdn.com/p/illus/preview_image/pMhdd5wW6xfB/49911626-1af4-4dc7-9004-b8d65cfa6018.png' },
+  { id: 4, name: 'LIS', department: '市场部', avatar: 'https://iconfont.alicdn.com/p/illus/preview_image/pMhdd5wW6xfB/2616b2cb-0b98-408f-a0f8-7b76a8e67f9f.png' },
+  { id: 5, name: '护理管理', department: '运营部', avatar: 'https://iconfont.alicdn.com/p/illus/preview_image/pMhdd5wW6xfB/bdf4dc61-b662-4f4d-bd8d-c58b8249eb4e.png' }
 ])
 
+// 2. 弹窗显示变量
+const userDialogVisible = ref(false)
+
+//3. 添加用户弹窗
+const addUserDialog = () => {
+  userDialogVisible.value = true
+}
+
+//4. 添加用户方法
+const handleSaveUser = (userData) => {
+  allUsers.value.push(userData)
+}
+
+// 5.监听用户列表
+watch(allUsers, (newVal) => {
+  localStorage.setItem("userList", JSON.stringify(newVal));
+}, { deep: true })
 </script>
 
 <style lang="scss" scoped></style>
