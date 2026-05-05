@@ -192,8 +192,30 @@
               </el-radio-group>
             </div>
 
+            <!-- 5.负责人 Created By ZaneXu 2026 -->
+            <div class="section">
+              <h4>
+                负责人维护
+                <el-button text type="primary" size="small" icon="Plus" @click="showAddDialog = true">
+                  添加
+                </el-button>
+              </h4>
+              <div class="tags" v-for="user in allUsers" :key="user.id">
+                <div
+                  style="font-size: small; display:flex; align-items: center; justify-content: space-between; gap:3px;">
+                  <el-avatar :size="20" :src="user.avatar" />
+                  <span class="user-name">{{ user.name }}</span>
+                  <span class="user-department">{{ user.department }}</span>
+                </div>
+                <div class="user-actions">
+                  <el-button type="warning" size="small" icon="Edit" circle plain @click="editUser(user)" />
+                  <el-button type="danger" size="small" icon="Delete" circle plain @click="removeUser(user.id)" />
+                </div>
+              </div>
+            </div>
           </aside>
         </el-scrollbar>
+
         <!-- 二、主板块内容Main -->
         <main class="main">
           <div class="main-toolbar">
@@ -1509,6 +1531,17 @@ const handleDropdownCommand = (command) => {
       break
   }
 }
+
+/**
+ * 负责人维护功能 Added By Zane Xu 2026-04-15
+ */
+const allUsers = ref([
+  { id: 1, name: '徐振宇', department: '技术部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+  { id: 2, name: 'NIS', department: '产品部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+  { id: 3, name: 'HIS', department: '设计部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+  { id: 4, name: 'LIS', department: '市场部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+  { id: 5, name: '护理管理', department: '运营部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' }
+])
 
 </script>
 
