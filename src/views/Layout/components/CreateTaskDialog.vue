@@ -153,7 +153,8 @@ const props = defineProps({
   task: Object, // 编辑时传入任务
   tagOptions: Object, // 标签
   projectOptions: Object, //文件夹
-  priorityList: Array // 优先级列表
+  priorityList: Array, // 优先级列表
+  allUsers: Object,
 });
 
 const form = reactive({
@@ -344,13 +345,13 @@ const handleUploadCancel = () => {
 // 用户数据
 const userOptions = ref([])
 const loading = ref(false)
-const allUsers = ref([
-  { id: 1, name: '徐振宇', department: '技术部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
-  { id: 2, name: 'NIS', department: '产品部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
-  { id: 3, name: 'HIS', department: '设计部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
-  { id: 4, name: 'LIS', department: '市场部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
-  { id: 5, name: '护理管理', department: '运营部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' }
-])
+// const allUsers = ref([
+//   { id: 1, name: '徐振宇', department: '技术部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+//   { id: 2, name: 'NIS', department: '产品部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+//   { id: 3, name: 'HIS', department: '设计部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+//   { id: 4, name: 'LIS', department: '市场部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
+//   { id: 5, name: '护理管理', department: '运营部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' }
+// ])
 
 // 标签颜色配置
 const tagColors = [

@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { PriceTag, Key } from '@element-plus/icons-vue';
+import { PriceTag, Key, ElementPlus } from '@element-plus/icons-vue';
 import { watch, computed, ref, reactive, nextTick } from 'vue';
 // 0.定义变量
 
@@ -161,7 +161,8 @@ const handleSubmit = () => {
       // 关闭对话框
       emit('update:visible', false);
     } else {
-      console.log('表单验证失败');
+      // console.log('表单验证失败');
+      ElMessage.error('表单验证失败');
       return false;
     }
   });

@@ -1,60 +1,63 @@
 <template>
-  <el-form :model="configForm" label-width="120px">
-    <el-collapse v-model="activeCollapse">
-      <el-collapse-item v-for="(groupItems, groupName) in groupedConfigs" :key="groupName" :title="groupName"
-        :name="groupName">
-        <el-row :gutter="20">
-          <el-col v-for="item in groupItems" :key="item.Id" :xs="24" :sm="item.ConfigType === 'boolean' ? 12 : 24"
-            :md="item.ConfigType === 'boolean' ? 8 : 12">
-            <!-- 字符串类型 -->
-            <el-form-item v-if="item.ConfigType === 'string'" :label="item.Label" :prop="item.ConfigKey">
-              <el-input v-model="configForm[item.ConfigKey]" :placeholder="`请输入${item.Label}`" clearable />
-              <div v-if="item.Description" class="config-description">
-                {{ item.Description }}
-              </div>
-            </el-form-item>
+  <div>
+    <el-form :model="configForm" label-width="120px">
+      <el-collapse v-model="activeCollapse">
+        <el-collapse-item v-for="(groupItems, groupName) in groupedConfigs" :key="groupName" :title="groupName"
+          :name="groupName">
+          <el-row :gutter="20">
+            <el-col v-for="item in groupItems" :key="item.Id" :xs="24" :sm="item.ConfigType === 'boolean' ? 12 : 24"
+              :md="item.ConfigType === 'boolean' ? 8 : 12">
+              <!-- 字符串类型 -->
+              <el-form-item v-if="item.ConfigType === 'string'" :label="item.Label" :prop="item.ConfigKey">
+                <el-input v-model="configForm[item.ConfigKey]" :placeholder="`请输入${item.Label}`" clearable />
+                <div v-if="item.Description" class="config-description">
+                  {{ item.Description }}
+                </div>
+              </el-form-item>
 
-            <!-- 数字类型 -->
-            <el-form-item v-if="item.ConfigType === 'number'" :label="item.Label" :prop="item.ConfigKey">
-              <el-input-number v-model="configForm[item.ConfigKey]" :min="0" controls-position="right"
-                style="width: 100%" />
-              <div v-if="item.Description" class="config-description">
-                {{ item.Description }}
-              </div>
-            </el-form-item>
+              <!-- 数字类型 -->
+              <el-form-item v-if="item.ConfigType === 'number'" :label="item.Label" :prop="item.ConfigKey">
+                <el-input-number v-model="configForm[item.ConfigKey]" :min="0" controls-position="right"
+                  style="width: 100%" />
+                <div v-if="item.Description" class="config-description">
+                  {{ item.Description }}
+                </div>
+              </el-form-item>
 
-            <!-- 布尔类型 -->
-            <el-form-item v-if="item.ConfigType === 'boolean'" :label="item.Label" :prop="item.ConfigKey">
-              <el-switch v-model="configForm[item.ConfigKey]" />
-              <div v-if="item.Description" class="config-description">
-                {{ item.Description }}
-              </div>
-            </el-form-item>
+              <!-- 布尔类型 -->
+              <el-form-item v-if="item.ConfigType === 'boolean'" :label="item.Label" :prop="item.ConfigKey">
+                <el-switch v-model="configForm[item.ConfigKey]" />
+                <div v-if="item.Description" class="config-description">
+                  {{ item.Description }}
+                </div>
+              </el-form-item>
 
-            <!-- 下拉选择类型 -->
-            <el-form-item v-if="item.ConfigType === 'select'" :label="item.Label" :prop="item.ConfigKey">
-              <el-select v-model="configForm[item.ConfigKey]" placeholder="请选择" style="width: 100%" clearable>
-                <el-option v-for="option in parseSelectOptions(item.ConfigValue)" :key="option.value"
-                  :label="option.label" :value="option.value" />
-              </el-select>
-              <div v-if="item.Description" class="config-description">
-                {{ item.Description }}
-              </div>
-            </el-form-item>
+              <!-- 下拉选择类型 -->
+              <el-form-item v-if="item.ConfigType === 'select'" :label="item.Label" :prop="item.ConfigKey">
+                <el-select v-model="configForm[item.ConfigKey]" placeholder="请选择" style="width: 100%" clearable>
+                  <el-option v-for="option in parseSelectOptions(item.ConfigValue)" :key="option.value"
+                    :label="option.label" :value="option.value" />
+                </el-select>
+                <div v-if="item.Description" class="config-description">
+                  {{ item.Description }}
+                </div>
+              </el-form-item>
 
-            <!-- 文本域类型 -->
-            <el-form-item v-if="item.ConfigType === 'textarea'" :label="item.Label" :prop="item.ConfigKey">
-              <el-input v-model="configForm[item.ConfigKey]" type="textarea" :rows="3"
-                :placeholder="`请输入${item.Label}`" />
-              <div v-if="item.Description" class="config-description">
-                {{ item.Description }}
-              </div>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-collapse-item>
-    </el-collapse>
-  </el-form>
+              <!-- 文本域类型 -->
+              <el-form-item v-if="item.ConfigType === 'textarea'" :label="item.Label" :prop="item.ConfigKey">
+                <el-input v-model="configForm[item.ConfigKey]" type="textarea" :rows="3"
+                  :placeholder="`请输入${item.Label}`" />
+                <div v-if="item.Description" class="config-description">
+                  {{ item.Description }}
+                </div>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-collapse-item>
+      </el-collapse>
+    </el-form>
+  </div>
+
 </template>
 
 <script setup>
@@ -99,6 +102,7 @@ const parseSelectOptions = (configValue) => {
 onMounted(async () => {
   // 获取配置列表
   await configStore.fetchConfigs()
+  console.log(configStore.configs);
 
   // 初始化表单数据
   configStore.configs?.forEach(item => {
