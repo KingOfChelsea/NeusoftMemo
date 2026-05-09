@@ -327,14 +327,25 @@
               <el-button icon="Printer" size="small" type="success" @click="printData">
                 打印
               </el-button>
+              <!--  :current-page-tasks="currentPageTasks" -->
+              <ExcelExport
+                :tasks="todos"
+                :filtered-tasks="activeTodos"
+
+                button-type="primary"
+                button-text="导出Excel"
+                :mini="false"
+                default-file-name="任务清单"
+                sheet-name="任务列表"
+              />
             </div>
 
             <div class="right">
-              <el-button size="small" color="#67c23a" :dark="isDark" icon="Menu"> 列表 </el-button>
+              <el-button size="small" type="primary" :dark="true" icon="Menu"> 列表 </el-button>
 
-              <el-button size="small" color="#e6a23c" icon="Grid"> 看板 </el-button>
+              <el-button size="small" type="primary" icon="Grid"> 看板 </el-button>
 
-              <el-button size="small" color="#409eff" icon="Calendar"> 日历 </el-button>
+              <el-button size="small" type="primary" :dark="true" icon="Calendar"> 日历 </el-button>
             </div>
           </div>
 
@@ -375,7 +386,6 @@
 
                   <div class="meta">
                     <el-tag v-for="tag in todo.tags" :key="tag" size="small">{{ tag }}</el-tag>
-
                     <span class="deadline" :class="{ expired: isExpired(todo.deadline) }">
                       {{ todo.deadline ? '截止：' + formatDate(todo.deadline) : '' }}
                     </span>
@@ -724,6 +734,8 @@
 
     <!-- 用户信息弹窗 -->
     <UserDialog v-model:visible="userDialogVisible" @save="handleSaveUser" />
+    <!-- 打印任务弹窗 -->
+    <PrintTaskDialog v-model:visible="showPrintDialog" :data="todos" />
   </div>
 </template>
 
@@ -746,6 +758,8 @@ import PriorityEditDialog from './components/PriorityEditDialog.vue'
 import { getTaskStatsByTime } from '@/utils/taskUtils'
 import UploadFileDialog from './components/UploadFileDialog.vue'
 import UserDialog from './components/UserDialog.vue'
+import PrintTaskDialog from './components/PrintTaskDialog.vue'
+import ExcelExport from './components/ExcelExport.vue'
 // import { useRouter } from 'vue-router'
 
 /**
@@ -1790,6 +1804,18 @@ watch(
   },
   { deep: true },
 )
+
+/**
+ * 打印功能 Added By Zane Xu 2026-04-16
+ */
+
+// 控制打印对话框显示
+const showPrintDialog = ref(false)
+
+// 打印按钮点击事件
+const printData = () => {
+  showPrintDialog.value = true
+}
 </script>
 
 <style lang="scss" scoped></style>

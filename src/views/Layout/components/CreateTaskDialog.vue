@@ -153,7 +153,8 @@ const props = defineProps({
   task: Object, // 编辑时传入任务
   tagOptions: Object, // 标签
   projectOptions: Object, //文件夹
-  priorityList: Array // 优先级列表
+  priorityList: Array, // 优先级列表
+  allUsers: Object, // 所有用户
 });
 
 const form = reactive({
