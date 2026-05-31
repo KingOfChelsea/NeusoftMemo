@@ -102,7 +102,10 @@
         </el-dropdown>
         <!-- 版本号 Created By ZaneXu 2025 -->
         <span class="app-version">版本: v{{ currentVersion }}</span>
-        <el-avatar size="small">U</el-avatar>
+        <el-avatar size="small">
+          <SvgIcon name="ChatGPT" style="font-size: 24px; color: aqua;" />
+
+        </el-avatar>
       </div>
     </header>
 
