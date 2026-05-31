@@ -1595,7 +1595,7 @@ const allUsers = ref(
       name: 'NIS',
       department: '产品部',
       avatar:
-        'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png',
+        'https://iconfont.alicdn.com/p/user/EKah83c1bmwx/f51d0eec-4e4d-42ac-9a03-b5ca4050ba53.jpeg',
     },
     {
       id: 3,

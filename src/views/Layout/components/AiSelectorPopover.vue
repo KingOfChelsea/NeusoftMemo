@@ -691,20 +691,9 @@ const copyToClipboard = async (text) => {
   }
 };
 
-// 打开添加/编辑对话框
-const openAddDialog = (app = null) => {
-  // // 添加模式
-  // isEditMode.value = false;
-  // editingAppId.value = null;
-  // formData.value = {
-  //   name: '',
-  //   url: '',
-  //   desc: '',
-  //   icon: 'ChromeFilled',
-  //   iconColor: predefineColors[Math.floor(Math.random() * predefineColors.length)],
-  //   tags: []
-  // };
-  if (app != null) {
+// 打开添加/编辑对话框 新增模式，app赋值为null，mode为add模式
+const openAddDialog = (app = null, mode = 'add') => {
+  if (app && mode === 'edit') {
     // 编辑模式
     isEditMode.value = true;
     editingAppId.value = app.id;
@@ -731,6 +720,14 @@ const openAddDialog = (app = null) => {
   dialogVisible.value = true;
 };
 
+const handleEditApp = (app) => {
+  if (!app) {
+    openAddDialog();
+  } else {
+    openAddDialog(app, 'edit');
+  }
+  managerVisible.value = false;
+};
 // 打开管理对话框
 const openManagerDialog = () => {
   managerVisible.value = true;
@@ -742,14 +739,7 @@ const handleAppsUpdate = (updatedApps) => {
   saveToLocalStorage();
 };
 
-const handleEditApp = (app) => {
-  if (!app) {
-    openAddDialog();
-  } else {
-    openAddDialog(app);
-  }
-  managerVisible.value = false;
-};
+
 
 const handleDeleteAppMg = (app) => {
   const index = allApps.value.findIndex(item => item.id === app.id);
@@ -798,7 +788,7 @@ const handleCommand = async (command, app) => {
       break;
 
     case 'edit':
-      openAddDialog(app);
+      openAddDialog(app, 'edit');
       popoverVisible.value = false;
       break;
 
