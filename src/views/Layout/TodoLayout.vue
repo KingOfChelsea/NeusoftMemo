@@ -7,8 +7,7 @@
         <span class="current-view">所有任务</span>
         <el-tag size="small" type="warning">PC 管理版</el-tag>
         <el-tag class="copy-btn" @click="copyTimeToClipboard(formattedTime)">
-          {{ formattedTime }}</el-tag
-        >
+          {{ formattedTime }}</el-tag>
       </div>
       <!-- 1.1搜索框 Search -->
       <div class="center">
@@ -30,14 +29,10 @@
         <el-button type="primary" @click="openDialog">新建任务</el-button>
         <el-button @click="exportJson">导出</el-button>
         <el-button @click="triggerImport">导入</el-button>
-        <input
-          ref="fileInput"
-          type="file"
-          accept="application/json"
-          style="display: none"
-          @change="importJson"
-        />
+        <input ref="fileInput" type="file" accept="application/json" style="display: none" @change="importJson" />
         <el-button @click="refreshTodos">刷新</el-button>
+        <AiSelectorPopover @select="handleSelect" @confirm="handleConfirm" @add="handleAddAI" @edit="handleEdit"
+          @delete="handleDeleteAI" @favorite="handleFavorite" />
         <router-link to="/config">
           <el-button color="#626aef" type="primary" :icon="Setting"> 参数控制 </el-button>
         </router-link>
@@ -144,14 +139,7 @@
             <div class="section">
               <h4>
                 📁 项目
-                <el-button
-                  text
-                  size="small"
-                  icon="Plus"
-                  @click="openAddProjectDialog"
-                  type="primary"
-                  >新增项目</el-button
-                >
+                <el-button text size="small" icon="Plus" @click="openAddProjectDialog" type="primary">新增项目</el-button>
               </h4>
 
               <ul>
@@ -159,8 +147,7 @@
                   {{ project }}
                   <span>
                     {{ getProjectCount(project) }}
-                    <el-button type="primary" text size="small" @click="removeProject(project)"
-                      >删除
+                    <el-button type="primary" text size="small" @click="removeProject(project)">删除
                     </el-button>
                   </span>
                 </li>
@@ -176,15 +163,8 @@
                 </el-button>
               </h4>
               <div class="tags">
-                <el-tag
-                  v-for="(tag, index) in tagOptions"
-                  @close="removeTag(index)"
-                  closable
-                  :key="index"
-                  size="small"
-                  :color="tag.color"
-                  :style="{ color: tag.fontColor }"
-                >
+                <el-tag v-for="(tag, index) in tagOptions" @close="removeTag(index)" closable :key="index" size="small"
+                  :color="tag.color" :style="{ color: tag.fontColor }">
                   {{ tag.name }}
                 </el-tag>
               </div>
@@ -200,44 +180,18 @@
               </h4>
               <!-- 使用 el-radio-group 实现单选 -->
               <el-radio-group v-model="currentPriority" class="priority-group">
-                <el-radio
-                  v-for="priority in priorityList"
-                  :key="priority.value"
-                  :value="priority.value"
-                >
+                <el-radio v-for="priority in priorityList" :key="priority.value" :value="priority.value">
                   <div class="priority-content">
                     <el-tag :type="getTagType(priority.value)" size="small">
                       {{ priority.label }}
                     </el-tag>
                     <span class="priority-desc">{{ priority.desc }}</span>
                     <span class="priority-actions">
-                      <el-button
-                        type="primary"
-                        size="small"
-                        :icon="Edit"
-                        circle
-                        class="edit-btn"
-                        @click="proiorityHandleEdit(priority)"
-                        title="编辑"
-                      />
-                      <el-button
-                        v-if="!priority.fixed"
-                        type="danger"
-                        size="small"
-                        :icon="Delete"
-                        circle
-                        @click.stop="handleDelete(priority)"
-                        title="删除"
-                      />
-                      <el-button
-                        v-else
-                        type="info"
-                        size="small"
-                        :icon="Lock"
-                        circle
-                        disabled
-                        title="系统默认，不可删除"
-                      />
+                      <el-button type="primary" size="small" :icon="Edit" circle class="edit-btn"
+                        @click="proiorityHandleEdit(priority)" title="编辑" />
+                      <el-button v-if="!priority.fixed" type="danger" size="small" :icon="Delete" circle
+                        @click.stop="handleDelete(priority)" title="删除" />
+                      <el-button v-else type="info" size="small" :icon="Lock" circle disabled title="系统默认，不可删除" />
                     </span>
                   </div>
                 </el-radio>
@@ -253,36 +207,20 @@
                 </el-button>
               </h4>
               <div class="tags" v-for="user in allUsers" :key="user.id">
-                <div
-                  style="
+                <div style="
                     font-size: small;
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
                     gap: 3px;
-                  "
-                >
+                  ">
                   <el-avatar :size="20" :src="user.avatar" />
                   <span class="user-name">{{ user.name }}</span>
                   <span class="user-department">{{ user.department }}</span>
                 </div>
                 <div class="user-actions">
-                  <el-button
-                    type="warning"
-                    size="small"
-                    icon="Edit"
-                    circle
-                    plain
-                    @click="editUser(user)"
-                  />
-                  <el-button
-                    type="danger"
-                    size="small"
-                    icon="Delete"
-                    circle
-                    plain
-                    @click="removeUser(user.id)"
-                  />
+                  <el-button type="warning" size="small" icon="Edit" circle plain @click="editUser(user)" />
+                  <el-button type="danger" size="small" icon="Delete" circle plain @click="removeUser(user.id)" />
                 </div>
               </div>
             </div>
@@ -293,59 +231,62 @@
         <main class="main">
           <div class="main-toolbar">
             <div class="left">
+              <!-- 全选和基础操作 -->
               <el-checkbox v-model="allSelected" @change="toggleAll">全选</el-checkbox>
-              <el-button
-                icon="Finished"
-                size="small"
-                type="success"
-                @click="setCompletionFilter('completed')"
-              >
-                只看完成
+
+              <el-button icon="RefreshLeft" size="small" type="primary" color="#FF6B8B" @click="restartFilter"
+                style="color: white;">
+                重置筛选
               </el-button>
 
-              <el-button
-                icon="CircleClose"
-                size="small"
-                type="warning"
-                @click="setCompletionFilter('active')"
-              >
-                只看未完成
+              <el-button icon="Printer" size="small" @click="printData" type="primary" color="#3D5AFE"> 打印 </el-button>
+
+              <!-- 筛选操作 - 多巴胺配色 -->
+              <el-button icon="Finished" size="small" @click="setCompletionFilter('completed')" color="#3fc1c9"
+                style="color: white;">
+                已完成
               </el-button>
 
-              <el-button icon="Menu" size="small" type="danger" @click="setCompletionFilter('all')">
-                显示全部
+              <el-button icon="CircleClose" size="small" @click="setCompletionFilter('active')" color="#FFD166"
+                style="color: white;">
+
+                未完成
               </el-button>
 
-              <el-button icon="Calendar" size="small" type="primary" @click="toggleGroupByDate">
-                {{ groupByDate ? '取消日期分组' : '按照日期分组排序' }}
+              <el-button icon="Menu" size="small" @click="setCompletionFilter('all')" color="#6639a6"
+                style="color: white;" <!-- 梦幻紫 -->
+
+                全部任务
               </el-button>
 
-              <el-button icon="RefreshLeft" size="small" type="info" @click="restartFilter">
-                恢复默认
+              <!-- 视图切换 - 渐变蓝紫色系 -->
+              <el-button size="small" icon="Menu" color="#5D5FEF" <!-- 靛蓝色 -->
+
+                列表
               </el-button>
 
-              <el-button icon="Printer" size="small" type="success" @click="printData">
-                打印
-              </el-button>
-              <!--  :current-page-tasks="currentPageTasks" -->
-              <ExcelExport
-                :tasks="todos"
-                :filtered-tasks="activeTodos"
+              <el-button size="small" icon="Grid" color="#7B61FF" <!-- 亮紫色 -->
 
-                button-type="primary"
-                button-text="导出Excel"
-                :mini="false"
-                default-file-name="任务清单"
-                sheet-name="任务列表"
-              />
+                看板
+              </el-button>
+
+              <el-button size="small" icon="Calendar" color="#9D4EDD" <!-- 紫红色 -->
+
+                日历
+              </el-button>
+
+              <el-button icon="Calendar" size="small" @click="toggleGroupByDate" color="#4361EE" <!-- 宝石蓝 -->
+
+                {{ groupByDate ? '取消分组' : '按日期分组' }}
+              </el-button>
+
+              <!-- 导出按钮 -->
+              <ExcelExport :tasks="todos" :filtered-tasks="activeTodos" button-type="success" button-text="导出Excel"
+                :mini="false" default-file-name="任务清单" sheet-name="任务列表" />
             </div>
 
             <div class="right">
-              <el-button size="small" type="primary" :dark="true" icon="Menu"> 列表 </el-button>
-
-              <el-button size="small" type="primary" icon="Grid"> 看板 </el-button>
-
-              <el-button size="small" type="primary" :dark="true" icon="Calendar"> 日历 </el-button>
+              <!-- 为了样式不启用这块内容 -->
             </div>
           </div>
 
@@ -353,23 +294,12 @@
             <!-- Todo Item -->
             <el-scrollbar height="100%">
               <!-- 未完成部分 -->
-              <div
-                class="todo-item"
-                v-for="(todo, index) in activeTodos"
-                :key="todo.id"
-                :class="{
-                  completed: todo.completed,
-                  selected: selectedTask && selectedTask.id === todo.id,
-                  dragging: dragIndex === index,
-                }"
-                @click="selectTask(todo)"
-                @contextmenu.prevent="openContextMenu($event, todo)"
-                draggable="true"
-                @dragstart="onDragStart(index)"
-                @dragover.prevent
-                @drop="onDrop(index)"
-                @dragend="onDragEnd"
-              >
+              <div class="todo-item" v-for="(todo, index) in activeTodos" :key="todo.id" :class="{
+                completed: todo.completed,
+                selected: selectedTask && selectedTask.id === todo.id,
+                dragging: dragIndex === index,
+              }" @click="selectTask(todo)" @contextmenu.prevent="openContextMenu($event, todo)" draggable="true"
+                @dragstart="onDragStart(index)" @dragover.prevent @drop="onDrop(index)" @dragend="onDragEnd">
                 <div class="left">
                   <el-checkbox v-model="todo.completed" @change="onCompletedChange(todo)" />
                 </div>
@@ -393,11 +323,7 @@
                   </div>
                 </div>
                 <div class="subtask-progress" v-if="todo.subtasks && todo.subtasks.length">
-                  <el-progress
-                    :percentage="calcSubtaskProgress(todo)"
-                    :stroke-width="6"
-                    :show-text="false"
-                  />
+                  <el-progress :percentage="calcSubtaskProgress(todo)" :stroke-width="6" :show-text="false" />
                   <span class="count">
                     {{ completedSubtasks(todo) }} / {{ todo.subtasks.length }}
                   </span>
@@ -405,9 +331,7 @@
 
                 <div class="actions">
                   <el-button text size="small" @click.stop="editTask(todo)">编辑</el-button>
-                  <el-button text size="small" type="danger" @click.stop="confirmDelete(todo.id)"
-                    >删除</el-button
-                  >
+                  <el-button text size="small" type="danger" @click.stop="confirmDelete(todo.id)">删除</el-button>
                 </div>
               </div>
 
@@ -422,22 +346,11 @@
 
                 <transition name="fade">
                   <div v-show="showCompletedFold" class="completed-list">
-                    <div
-                      class="todo-item completed"
-                      v-for="(todo, index) in completedTodos"
-                      :key="todo.id"
-                      :class="{
-                        selected: selectedTask && selectedTask.id === todo.id,
-                        dragging: dragIndex === index,
-                      }"
-                      @click="selectTask(todo)"
-                      @contextmenu.prevent="openContextMenu($event, todo)"
-                      draggable="true"
-                      @dragstart="onDragStart(index)"
-                      @dragover.prevent
-                      @drop="onDrop(index)"
-                      @dragend="onDragEnd"
-                    >
+                    <div class="todo-item completed" v-for="(todo, index) in completedTodos" :key="todo.id" :class="{
+                      selected: selectedTask && selectedTask.id === todo.id,
+                      dragging: dragIndex === index,
+                    }" @click="selectTask(todo)" @contextmenu.prevent="openContextMenu($event, todo)" draggable="true"
+                      @dragstart="onDragStart(index)" @dragover.prevent @drop="onDrop(index)" @dragend="onDragEnd">
                       <!-- 左侧复选 -->
                       <div class="left">
                         <el-checkbox v-model="todo.completed" />
@@ -467,11 +380,7 @@
 
                       <!-- 子任务进度条 -->
                       <div class="subtask-progress" v-if="todo.subtasks && todo.subtasks.length">
-                        <el-progress
-                          :percentage="calcSubtaskProgress(todo)"
-                          :stroke-width="6"
-                          :show-text="false"
-                        />
+                        <el-progress :percentage="calcSubtaskProgress(todo)" :stroke-width="6" :show-text="false" />
                         <span class="count">
                           {{ completedSubtasks(todo) }} / {{ todo.subtasks.length }}
                         </span>
@@ -480,13 +389,7 @@
                       <!-- 操作按钮 -->
                       <div class="actions">
                         <el-button text size="small" @click.stop="editTask(todo)">编辑</el-button>
-                        <el-button
-                          text
-                          size="small"
-                          type="danger"
-                          @click.stop="confirmDelete(todo.id)"
-                          >删除</el-button
-                        >
+                        <el-button text size="small" type="danger" @click.stop="confirmDelete(todo.id)">删除</el-button>
                       </div>
                     </div>
                   </div>
@@ -528,15 +431,8 @@
               </h3>
 
               <!-- 编辑模式 -->
-              <el-input
-                v-else
-                v-model="editingTitle"
-                size="small"
-                autofocus
-                @blur="cancelEditTitle"
-                @keydown.enter.prevent="confirmEditTitle"
-                @keydown.esc.prevent="cancelEditTitle"
-              />
+              <el-input v-else v-model="editingTitle" size="small" autofocus @blur="cancelEditTitle"
+                @keydown.enter.prevent="confirmEditTitle" @keydown.esc.prevent="cancelEditTitle" />
             </div>
 
             <!-- 描述 -->
@@ -552,20 +448,10 @@
                 {{ selectedTask.description || '暂无描述' }}
               </p>
               <!-- 编辑模式 -->
-              <el-input
-                v-else
-                v-model="editingDesc"
-                type="textarea"
-                :rows="4"
-                autofocus
-                resize="none"
-                placeholder="输入任务描述…"
-                @blur="cancelEditDesc"
-                @keydown.enter.exact.prevent
-                @keydown.enter.meta.prevent="confirmEditDesc"
-                @keydown.enter.ctrl.prevent="confirmEditDesc"
-                @keydown.esc.prevent="cancelEditDesc"
-              />
+              <el-input v-else v-model="editingDesc" type="textarea" :rows="4" autofocus resize="none"
+                placeholder="输入任务描述…" @blur="cancelEditDesc" @keydown.enter.exact.prevent
+                @keydown.enter.meta.prevent="confirmEditDesc" @keydown.enter.ctrl.prevent="confirmEditDesc"
+                @keydown.esc.prevent="cancelEditDesc" />
             </div>
 
             <!-- 元信息 -->
@@ -601,63 +487,61 @@
                     </el-icon>
                     <span>子任务</span>
                   </div>
-                  <el-button
-                    type="primary"
-                    color="#626aef"
-                    size="small"
-                    @click="openSubtaskDialog()"
-                  >
-                    添加明细<el-icon class="el-icon--right">
-                      <Plus />
-                    </el-icon>
-                  </el-button>
+                  <el-button-group>
+                    <el-button type="primary" color="#626aef" size="small" @click="openSubtaskDialog()">
+                      添加明细<el-icon class="el-icon--right">
+                        <Plus />
+                      </el-icon>
+                    </el-button>
+                    <el-button type="primary" color="#1fab89" size="small" @click="copyTaskList('completed')">
+                      <el-icon>
+                        <CopyDocument />
+                      </el-icon>
+                      复制已完成
+                    </el-button>
+                    <el-button class=".copy_task_btn" type="primary" color="#155263" size="small" style="color: white;"
+                      @click="copyTaskList('all')">
+                      <el-icon>
+                        <DocumentCopy />
+                      </el-icon>
+                      复制全部
+                    </el-button>
+                  </el-button-group>
                 </div>
 
                 <ul class="subtask-ul" v-if="selectedTask.subtasks && selectedTask.subtasks.length">
-                  <li
-                    v-for="sub in selectedTask.subtasks"
-                    :key="sub.id"
-                    class="subtask-item"
-                    @dblclick="openSubtaskDialog(sub)"
-                  >
+                  <li v-for="sub in selectedTask.subtasks" :key="sub.id" class="subtask-item"
+                    @dblclick="openSubtaskDialog(sub)">
                     <el-checkbox v-model="sub.completed">
                       {{ sub.title || '未命名子任务' }}
-                      <el-tag
-                        style="margin: 0px 5px 0px 5px"
-                        v-for="value in sub.assignees"
-                        :key="value"
-                        type="primary"
-                      >
+                      <el-tag style="margin: 0px 5px 0px 5px" v-for="value in sub.assignees" :key="value"
+                        type="primary">
                         {{ value }}
                       </el-tag>
                       <el-button-group>
-                        <el-popconfirm
-                          title="确定要删除这个子任务吗？"
-                          confirm-button-text="删除"
-                          cancel-button-text="取消"
-                          @confirm="removeSubtask(sub.id)"
-                        >
-                          <template #reference>
-                            <el-button size="small" type="danger" plain class="action-btn">
-                              删除
-                              <el-icon>
-                                <Delete />
-                              </el-icon>
-                            </el-button>
-                          </template>
-                        </el-popconfirm>
-
-                        <el-button
-                          size="small"
-                          type="primary"
-                          plain
-                          class="action-btn"
-                          @click="uploadDialogVisible = true"
-                        >
-                          附件
+                        <el-button size="small" type="primary" plain class="action-btn"
+                          @click="uploadDialogVisible = true">
                           <el-icon>
                             <Paperclip />
                           </el-icon>
+                          上传附件
+                        </el-button>
+                        <el-popconfirm title="确定要删除这个子任务吗？" confirm-button-text="删除" cancel-button-text="取消"
+                          @confirm="removeSubtask(sub.id)">
+                          <template #reference>
+                            <el-button size="small" type="danger" plain class="action-btn">
+                              <el-icon>
+                                <Delete />
+                              </el-icon>
+                              删除
+                            </el-button>
+                          </template>
+                        </el-popconfirm>
+                        <el-button size="small" color="#626aef" plain>
+                          <el-icon>
+                            <Notebook />
+                          </el-icon>
+                          查看附件
                         </el-button>
                       </el-button-group>
                     </el-checkbox>
@@ -677,29 +561,14 @@
     <!-- 3.其他：引入各类Dialog -->
 
     <!-- 创建任务对话框 -->
-    <CreateTaskDialog
-      v-model:visible="dialogVisible"
-      @create="saveTask"
-      :task="editingTask"
-      :tagOptions="tagOptions"
-      :projectOptions="projectOptions"
-      @update:tagOptions="handleTitleUpdate"
-      :priorityList="priorityList"
-      @update:projectOptions="handleAddProject"
-      :allUsers="allUsers"
-    />
+    <CreateTaskDialog v-model:visible="dialogVisible" @create="saveTask" :task="editingTask" :tagOptions="tagOptions"
+      :projectOptions="projectOptions" @update:tagOptions="handleTitleUpdate" :priorityList="priorityList"
+      @update:projectOptions="handleAddProject" :allUsers="allUsers" />
 
     <!-- 创建右键菜单 -->
-    <TodoContextMenu
-      :visible="contextMenu.visible"
-      :x="contextMenu.x"
-      :y="contextMenu.y"
-      @edit="editTask(contextMenu.task)"
-      @delete="confirmDelete(contextMenu.task.id)"
-      @copy="copyTask"
-      @close="contextMenu.visible = false"
-      @create="createTask"
-    />
+    <TodoContextMenu :visible="contextMenu.visible" :x="contextMenu.x" :y="contextMenu.y"
+      @edit="editTask(contextMenu.task)" @delete="confirmDelete(contextMenu.task.id)" @copy="copyTask"
+      @close="contextMenu.visible = false" @create="createTask" />
 
     <!-- 创建子任务对话框  -->
     <SubtaskDialog v-model="subtaskDialogVisible" :subtask="editingSubtask" @save="saveSubtask" />
@@ -708,28 +577,17 @@
     <CreateTagDialog v-model="dialogTagVisible" @add-tag="handleAddTag"> </CreateTagDialog>
 
     <!-- 创建项目对话框 -->
-    <CreateProjectDialog
-      v-model="dialogProjectVisible"
-      @add-project="handleAddProject"
-      :existingProjects="projectOptions"
-    >
+    <CreateProjectDialog v-model="dialogProjectVisible" @add-project="handleAddProject"
+      :existingProjects="projectOptions">
     </CreateProjectDialog>
 
     <!-- 创建优先级对话框 -->
-    <PriorityEditDialog
-      v-model:visible="proiorityDialogVisible"
-      :priorityData="editingPriority"
-      :mode="dialogMode"
-      @save="handleSavePriority"
-    />
+    <PriorityEditDialog v-model:visible="proiorityDialogVisible" :priorityData="editingPriority" :mode="dialogMode"
+      @save="handleSavePriority" />
 
     <!--创建附件上传弹窗  -->
-    <UploadFileDialog
-      v-model="uploadDialogVisible"
-      :visible="uploadDialogVisible"
-      @success="handleUploadSuccess"
-      @cancel="handleUploadCancel"
-    >
+    <UploadFileDialog v-model="uploadDialogVisible" :visible="uploadDialogVisible" @success="handleUploadSuccess"
+      @cancel="handleUploadCancel">
     </UploadFileDialog>
 
     <!-- 用户信息弹窗 -->
@@ -753,13 +611,15 @@ import {
   isFullscreen as checkFullscreen,
   onFullscreenChange,
 } from '@/utils/fullscreen'
-import Clipboard from 'clipboard'
 import PriorityEditDialog from './components/PriorityEditDialog.vue'
 import { getTaskStatsByTime } from '@/utils/taskUtils'
 import UploadFileDialog from './components/UploadFileDialog.vue'
 import UserDialog from './components/UserDialog.vue'
 import PrintTaskDialog from './components/PrintTaskDialog.vue'
 import ExcelExport from './components/ExcelExport.vue'
+import { copyToClipboard } from '@/utils/copyToClipboard.js'
+import AiSelectorPopover from './components/AiSelectorPopover.vue';
+
 // import { useRouter } from 'vue-router'
 
 /**
@@ -863,7 +723,7 @@ function confirmDelete(id) {
 
       ElMessage.success('删除成功')
     })
-    .catch(() => {})
+    .catch(() => { })
 }
 // 选中全部一键完成或一键取消
 const allSelected = ref(false)
@@ -1198,7 +1058,7 @@ function triggerImport() {
     .then(() => {
       fileInput.value.click()
     })
-    .catch(() => {})
+    .catch(() => { })
 }
 
 function importJson(e) {
@@ -1340,31 +1200,9 @@ const formattedTime = computed(() => {
 })
 let timer = null
 
-// 复制到剪贴板
+// 复制时间日期到剪贴板
 const copyTimeToClipboard = (value) => {
-  const clipboard = new Clipboard('.copy-btn', {
-    // 假设你的按钮有copy-btn类
-    text: () => value,
-  })
-
-  clipboard.on('success', () => {
-    ElNotification({
-      title: '提示',
-      message: `复制成功: ${value}`,
-      type: 'success',
-    })
-    clipboard.destroy()
-  })
-
-  clipboard.on('error', (err) => {
-    ElNotification({
-      title: '错误',
-      message: '复制失败，请手动复制',
-      type: 'error',
-    })
-    console.error('复制失败:', err)
-    clipboard.destroy()
-  })
+  copyToClipboard(value)
 }
 
 /**
@@ -1816,6 +1654,69 @@ const showPrintDialog = ref(false)
 const printData = () => {
   showPrintDialog.value = true
 }
+
+/**
+ * 复制子任务 Added By Zane Xu 2026-04-16
+ */
+const copyTaskList = (type) => {
+  if (!selectedTask.value || !selectedTask.value.subtasks) return
+
+  let textToCopy = ''
+  const subtasks = selectedTask.value.subtasks
+
+  switch (type) {
+    case 'completed':
+      // 只复制已完成的子任务
+      const completed = subtasks.filter(s => s.completed)
+      textToCopy = completed.map(s => s.title).join(';')
+      break
+    case 'all':
+      // 复制所有子任务
+      textToCopy = subtasks.map(s => `[${s.completed ? '✅' : 'x'}] ${s.title}`).join('\n')
+      break
+    default:
+      textToCopy = subtasks.map(s => s.title).join('\n')
+  }
+
+  if (textToCopy) {
+    copyToClipboard(textToCopy, "复制成功！", "复制失败！请手动复制")
+  } else {
+    ElMessage.warning('暂无内容可复制')
+  }
+}
+
+/**
+ * AI应用 Added By Zane Xu 2026-04-16
+ */
+// 选择AI时的回调
+// 事件处理函数
+const handleSelect = (app) => {
+  console.log('选择应用:', app);
+};
+
+const handleConfirm = (app) => {
+  console.log('确认跳转:', app);
+};
+
+const handleAddAI = (app) => {
+  console.log('添加应用:', app);
+  // 可以发送到后端保存
+};
+
+const handleEdit = (app) => {
+  console.log('编辑应用:', app);
+  // 可以发送到后端更新
+};
+
+const handleDeleteAI = (app) => {
+  console.log('删除应用:', app);
+  // 可以发送到后端删除
+};
+
+const handleFavorite = (app) => {
+  console.log('收藏状态变化:', app);
+  // 可以发送到后端更新收藏状态
+};
 </script>
 
 <style lang="scss" scoped></style>

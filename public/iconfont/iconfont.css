@@ -1,0 +1,33 @@
+@font-face {
+  font-family: "iconfont"; /* Project id  */
+  src: url('iconfont.ttf?t=1780204174164') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-ChatGPT:before {
+  content: "\e6a5";
+}
+
+.icon-a-Icon4:before {
+  content: "\e605";
+}
+
+.icon-tongyiqianwenTongyi-Qianwen:before {
+  content: "\e63d";
+}
+
+.icon-Claude:before {
+  content: "\e7d9";
+}
+
+.icon-yuanbao:before {
+  content: "\e68c";
+}
+

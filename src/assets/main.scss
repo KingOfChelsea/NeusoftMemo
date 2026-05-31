@@ -67,6 +67,7 @@ body {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap; /* 允许换行 */
 }
 
 .app-container .app-body {
@@ -153,7 +154,8 @@ body {
 
 /* ==================== Main 区域 ==================== */
 .app-container .main {
-  flex: 1;
+  // flex: 1;
+  width: 100%;
   background: #f5f7fa;
   padding: 16px;
   box-sizing: border-box;
@@ -164,10 +166,12 @@ body {
 /* 工具栏 */
 .app-container .main .main-toolbar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   background: #ffffff;
-  padding: 10px 8px;
+  padding: 8px 10px;
+  box-sizing: border-box;
   border-radius: 6px;
   margin-bottom: 16px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -175,14 +179,17 @@ body {
 
 .app-container .main .main-toolbar .left {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 15px;
-  margin-right: 10px;
+  gap: 10px;
+  box-sizing: border-box;
 }
 .app-container .main .main-toolbar .right {
+  padding: 10px 8px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 15px;
+  gap: 5px;
 }
 
 .app-container .main .main-toolbar .dropdown {
@@ -319,7 +326,7 @@ body {
 
 /* ==================== Detail 区域 ==================== */
 .app-container .detail {
-  width: 40%;
+  width: 70%;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;

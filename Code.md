@@ -287,3 +287,45 @@ const lastName = ref('三')
 array.includes(searchElement, fromIndex)
 ```
 
+#### 1.2 数组过滤某个字段
+
+背景：
+
+```js
+const data = [
+  {
+    id: 1780137741249.2651,
+    title: "测试",
+    completed: false,
+    Link: [],
+    index: 0,
+    assignees: ["徐振宇 - 技术部"]
+  },
+  {
+    id: 1780149115868,
+    title: "1111",
+    completed: false,
+    assignees: ["徐振宇 - 技术部"]
+  }
+];
+
+// 过滤掉 completed 为 true 的数据
+const filteredData = data.filter(item => !item.completed);
+
+console.log(filteredData);
+```
+
+
+
+## Element-plus
+
+### 1.1 icon
+
+icon 可通过size color 来设置大小颜色
+
+```vue
+<el-icon size="20px" color="#00f">
+	<Edit />
+</el-icon>
+```
+
