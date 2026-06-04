@@ -1,6 +1,6 @@
 <template>
   <div class="ai-selector-wrapper">
-    <!-- 触发按钮 -->
+    <!-- 触发按钮
     <div ref="triggerRef" class="trigger-wrapper">
       <slot>
         <el-button color="#fdeff2" class="ai-button">
@@ -8,11 +8,22 @@
           <span>AI</span>
         </el-button>
       </slot>
-    </div>
+    </div> -->
 
     <!-- 主弹窗 -->
-    <el-popover v-model:visible="popoverVisible" :virtual-ref="triggerRef" trigger="click" placement="bottom-start"
-      width="420px" popper-class="ai-selector-popover" transition="el-zoom-in-top" :show-arrow="false">
+    <el-popover v-model:visible="popoverVisible" trigger="click" placement="bottom-start" width="420px"
+      popper-class="ai-selector-popover" transition="el-zoom-in-top" :show-arrow="false">
+      <!-- 将触发按钮放在默认插槽中 -->
+      <template #reference>
+        <div class="trigger-wrapper">
+          <slot>
+            <el-button color="#fdeff2" class="ai-button">
+              <SvgIcon name="ChatGPT" style="font-size: 24px; color: aqua;" />
+              <span>AI</span>
+            </el-button>
+          </slot>
+        </div>
+      </template>
       <div class="popover-content">
         <!-- 头部区域 -->
         <div class="popover-header">

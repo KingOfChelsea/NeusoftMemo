@@ -312,7 +312,7 @@
                     <span class="priority" :class="todo.priority">
                       <el-tag effect="light" type="success" size="large" hi>{{
                         todo.priority.toUpperCase()
-                      }}</el-tag>
+                        }}</el-tag>
                     </span>
                     {{ todo.title }}
                   </div>
@@ -365,7 +365,7 @@
                           <span class="priority" :class="todo.priority">
                             <el-tag effect="light" type="danger" size="large">{{
                               todo.priority.toUpperCase()
-                            }}</el-tag>
+                              }}</el-tag>
                           </span>
                           {{ todo.title }}
                         </div>
@@ -373,7 +373,7 @@
                         <div class="meta">
                           <el-tag v-for="tag in todo.tags" :key="tag" size="small">{{
                             tag
-                          }}</el-tag>
+                            }}</el-tag>
                           <span class="deadline" :class="{ expired: isExpired(todo.deadline) }">
                             {{ todo.deadline ? '截止：' + formatDate(todo.deadline) : '' }}
                           </span>

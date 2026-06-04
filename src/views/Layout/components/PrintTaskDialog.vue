@@ -1,12 +1,6 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    title="任务打印设置"
-    width="95%"
-    :before-close="handleClose"
-    class="print-dialog-container"
-    fullscreen
-  >
+  <el-dialog v-model="dialogVisible" title="任务打印设置" width="95%" :before-close="handleClose"
+    class="print-dialog-container" fullscreen>
     <div class="print-dialog">
       <!-- 主设置区域 -->
       <div class="main-settings">
@@ -17,40 +11,27 @@
               <div class="tab-content">
                 <el-form :model="printSettings" label-width="100px" label-position="left">
                   <el-form-item label="纸张尺寸">
-                    <el-radio-group
-                      v-model="printSettings.paperSize"
-                      @change="handlePaperSizeChange"
-                    >
-                      <el-radio-button label="A4">A4</el-radio-button>
-                      <el-radio-button label="A3">A3</el-radio-button>
-                      <el-radio-button label="A5">A5</el-radio-button>
-                      <el-radio-button label="B5">B5</el-radio-button>
-                      <el-radio-button label="custom">自定义</el-radio-button>
+                    <el-radio-group v-model="printSettings.paperSize" @change="handlePaperSizeChange">
+                      <el-radio-button value="A4">A4</el-radio-button>
+                      <el-radio-button value="A3">A3</el-radio-button>
+                      <el-radio-button value="A5">A5</el-radio-button>
+                      <el-radio-button value="B5">B5</el-radio-button>
+                      <el-radio-button value="custom">自定义</el-radio-button>
                     </el-radio-group>
                   </el-form-item>
 
                   <el-form-item v-if="printSettings.paperSize === 'custom'" label="自定义尺寸">
                     <el-row :gutter="10">
                       <el-col :span="12">
-                        <el-input-number
-                          v-model="printSettings.customWidth"
-                          :min="50"
-                          :max="1000"
-                          :step="5"
-                          controls-position="right"
-                        >
+                        <el-input-number v-model="printSettings.customWidth" :min="50" :max="1000" :step="5"
+                          controls-position="right">
                           <template #prepend>宽度</template>
                           <template #append>mm</template>
                         </el-input-number>
                       </el-col>
                       <el-col :span="12">
-                        <el-input-number
-                          v-model="printSettings.customHeight"
-                          :min="50"
-                          :max="1000"
-                          :step="5"
-                          controls-position="right"
-                        >
+                        <el-input-number v-model="printSettings.customHeight" :min="50" :max="1000" :step="5"
+                          controls-position="right">
                           <template #prepend>高度</template>
                           <template #append>mm</template>
                         </el-input-number>
@@ -59,53 +40,33 @@
                   </el-form-item>
 
                   <el-form-item label="页面方向">
-                    <el-radio-group
-                      v-model="printSettings.orientation"
-                      @change="handleOrientationChange"
-                    >
-                      <el-radio-button label="portrait">
-                        <el-icon><Sort /></el-icon> 纵向
+                    <el-radio-group v-model="printSettings.orientation" @change="handleOrientationChange">
+                      <el-radio-button value="portrait">
+                        <el-icon>
+                          <Sort />
+                        </el-icon> 纵向
                       </el-radio-button>
-                      <el-radio-button label="landscape">
-                        <el-icon><Sort /></el-icon> 横向
+                      <el-radio-button value="landscape">
+                        <el-icon>
+                          <Sort />
+                        </el-icon> 横向
                       </el-radio-button>
                     </el-radio-group>
                   </el-form-item>
 
                   <el-form-item label="页面边距">
-                    <el-slider
-                      v-model="printSettings.margin"
-                      :min="5"
-                      :max="50"
-                      :step="1"
-                      :format-tooltip="(val) => `${val}mm`"
-                      show-input
-                      input-size="small"
-                    />
+                    <el-slider v-model="printSettings.margin" :min="5" :max="50" :step="1"
+                      :format-tooltip="(val) => `${val}mm`" show-input input-size="small" />
                   </el-form-item>
 
                   <el-form-item label="行间距">
-                    <el-slider
-                      v-model="printSettings.lineHeight"
-                      :min="1"
-                      :max="3"
-                      :step="0.1"
-                      :format-tooltip="(val) => val.toFixed(1)"
-                      show-input
-                      input-size="small"
-                    />
+                    <el-slider v-model="printSettings.lineHeight" :min="1" :max="3" :step="0.1"
+                      :format-tooltip="(val) => val.toFixed(1)" show-input input-size="small" />
                   </el-form-item>
 
                   <el-form-item label="字体大小">
-                    <el-slider
-                      v-model="printSettings.fontSize"
-                      :min="10"
-                      :max="20"
-                      :step="1"
-                      :format-tooltip="(val) => `${val}px`"
-                      show-input
-                      input-size="small"
-                    />
+                    <el-slider v-model="printSettings.fontSize" :min="10" :max="20" :step="1"
+                      :format-tooltip="(val) => `${val}px`" show-input input-size="small" />
                   </el-form-item>
                 </el-form>
               </div>
@@ -115,11 +76,7 @@
               <div class="tab-content">
                 <el-form :model="printSettings" label-width="100px" label-position="left">
                   <el-form-item label="打印样式">
-                    <el-select
-                      v-model="printSettings.style"
-                      placeholder="选择打印样式"
-                      style="width: 100%"
-                    >
+                    <el-select v-model="printSettings.style" placeholder="选择打印样式" style="width: 100%">
                       <el-option label="简洁版" value="simple" />
                       <el-option label="详细版" value="detailed" />
                       <el-option label="表格版" value="table" />
@@ -132,34 +89,34 @@
                     <el-checkbox-group v-model="printSettings.displayOptions">
                       <el-row :gutter="10">
                         <el-col :span="8">
-                          <el-checkbox label="showTitle">任务标题</el-checkbox>
+                          <el-checkbox value="showTitle">任务标题</el-checkbox>
                         </el-col>
                         <el-col :span="8">
-                          <el-checkbox label="showProject">所属项目</el-checkbox>
+                          <el-checkbox value="showProject">所属项目</el-checkbox>
                         </el-col>
                         <el-col :span="8">
-                          <el-checkbox label="showPriority">优先级</el-checkbox>
+                          <el-checkbox value="showPriority">优先级</el-checkbox>
                         </el-col>
                         <el-col :span="8">
-                          <el-checkbox label="showTags">标签</el-checkbox>
+                          <el-checkbox value="showTags">标签</el-checkbox>
                         </el-col>
                         <el-col :span="8">
-                          <el-checkbox label="showDeadline">截止日期</el-checkbox>
+                          <el-checkbox value="showDeadline">截止日期</el-checkbox>
                         </el-col>
                         <el-col :span="8">
-                          <el-checkbox label="showDescription">任务描述</el-checkbox>
+                          <el-checkbox value="showDescription">任务描述</el-checkbox>
                         </el-col>
                         <el-col :span="8">
-                          <el-checkbox label="showSubtasks">子任务</el-checkbox>
+                          <el-checkbox value="showSubtasks">子任务</el-checkbox>
                         </el-col>
                         <el-col :span="8">
-                          <el-checkbox label="showAssignees">负责人</el-checkbox>
+                          <el-checkbox value="showAssignees">负责人</el-checkbox>
                         </el-col>
                         <el-col :span="8">
-                          <el-checkbox label="showStatus">状态</el-checkbox>
+                          <el-checkbox value="showStatus">状态</el-checkbox>
                         </el-col>
                         <el-col :span="8">
-                          <el-checkbox label="showStatistics">统计信息</el-checkbox>
+                          <el-checkbox value="showStatistics">统计信息</el-checkbox>
                         </el-col>
                       </el-row>
                     </el-checkbox-group>
@@ -168,28 +125,15 @@
                   <el-form-item label="任务筛选">
                     <el-row :gutter="10">
                       <el-col :span="8">
-                        <el-select
-                          v-model="printSettings.filterProject"
-                          placeholder="按项目筛选"
-                          clearable
-                          filterable
-                          style="width: 100%"
-                        >
-                          <el-option
-                            v-for="project in uniqueProjects"
-                            :key="project"
-                            :label="project"
-                            :value="project"
-                          />
+                        <el-select v-model="printSettings.filterProject" placeholder="按项目筛选" clearable filterable
+                          style="width: 100%">
+                          <el-option v-for="project in uniqueProjects" :key="project" :label="project"
+                            :value="project" />
                         </el-select>
                       </el-col>
                       <el-col :span="8">
-                        <el-select
-                          v-model="printSettings.filterPriority"
-                          placeholder="按优先级筛选"
-                          clearable
-                          style="width: 100%"
-                        >
+                        <el-select v-model="printSettings.filterPriority" placeholder="按优先级筛选" clearable
+                          style="width: 100%">
                           <el-option label="P1 - 紧急" value="P1 - 紧急" />
                           <el-option label="P2 - 高" value="P2 - 高" />
                           <el-option label="P3 - 中" value="P3 - 中" />
@@ -197,12 +141,8 @@
                         </el-select>
                       </el-col>
                       <el-col :span="8">
-                        <el-select
-                          v-model="printSettings.filterStatus"
-                          placeholder="按状态筛选"
-                          clearable
-                          style="width: 100%"
-                        >
+                        <el-select v-model="printSettings.filterStatus" placeholder="按状态筛选" clearable
+                          style="width: 100%">
                           <el-option label="未完成" :value="false" />
                           <el-option label="已完成" :value="true" />
                         </el-select>
@@ -221,14 +161,8 @@
                   </el-form-item>
 
                   <el-form-item label="每页任务数">
-                    <el-input-number
-                      v-model="printSettings.tasksPerPage"
-                      :min="1"
-                      :max="50"
-                      :step="1"
-                      controls-position="right"
-                      style="width: 100%"
-                    />
+                    <el-input-number v-model="printSettings.tasksPerPage" :min="1" :max="50" :step="1"
+                      controls-position="right" style="width: 100%" />
                   </el-form-item>
                 </el-form>
               </div>
@@ -241,42 +175,21 @@
                     <div class="template-editor">
                       <div class="editor-toolbar">
                         <el-button-group>
-                          <el-button @click="insertHeaderVariable('{title}')" size="small"
-                            >标题</el-button
-                          >
-                          <el-button @click="insertHeaderVariable('{date}')" size="small"
-                            >日期</el-button
-                          >
-                          <el-button @click="insertHeaderVariable('{time}')" size="small"
-                            >时间</el-button
-                          >
-                          <el-button @click="insertHeaderVariable('{page}')" size="small"
-                            >页码</el-button
-                          >
-                          <el-button @click="insertHeaderVariable('{totalPages}')" size="small"
-                            >总页数</el-button
-                          >
+                          <el-button @click="insertHeaderVariable('{title}')" size="small">标题</el-button>
+                          <el-button @click="insertHeaderVariable('{date}')" size="small">日期</el-button>
+                          <el-button @click="insertHeaderVariable('{time}')" size="small">时间</el-button>
+                          <el-button @click="insertHeaderVariable('{page}')" size="small">页码</el-button>
+                          <el-button @click="insertHeaderVariable('{totalPages}')" size="small">总页数</el-button>
                         </el-button-group>
                         <el-button-group style="margin-left: 10px">
-                          <el-button @click="insertHeaderVariable('{user}')" size="small"
-                            >用户</el-button
-                          >
-                          <el-button @click="insertHeaderVariable('{totalTasks}')" size="small"
-                            >任务数</el-button
-                          >
-                          <el-button @click="insertHeaderVariable('{completedTasks}')" size="small"
-                            >已完成</el-button
-                          >
+                          <el-button @click="insertHeaderVariable('{user}')" size="small">用户</el-button>
+                          <el-button @click="insertHeaderVariable('{totalTasks}')" size="small">任务数</el-button>
+                          <el-button @click="insertHeaderVariable('{completedTasks}')" size="small">已完成</el-button>
                         </el-button-group>
                       </div>
-                      <el-input
-                        v-model="printSettings.headerTemplate"
-                        type="textarea"
-                        :rows="6"
+                      <el-input v-model="printSettings.headerTemplate" type="textarea" :rows="6"
                         placeholder="输入页眉HTML内容，可以使用变量：{title}、{date}、{time}、{page}、{totalPages}、{user}、{totalTasks}、{completedTasks}"
-                        @input="updatePreview"
-                        resize="none"
-                      />
+                        @input="updatePreview" resize="none" />
                     </div>
                   </el-tab-pane>
 
@@ -284,39 +197,20 @@
                     <div class="template-editor">
                       <div class="editor-toolbar">
                         <el-button-group>
-                          <el-button @click="insertFooterVariable('{page}')" size="small"
-                            >页码</el-button
-                          >
-                          <el-button @click="insertFooterVariable('{totalPages}')" size="small"
-                            >总页数</el-button
-                          >
-                          <el-button @click="insertFooterVariable('{date}')" size="small"
-                            >日期</el-button
-                          >
-                          <el-button @click="insertFooterVariable('{time}')" size="small"
-                            >时间</el-button
-                          >
+                          <el-button @click="insertFooterVariable('{page}')" size="small">页码</el-button>
+                          <el-button @click="insertFooterVariable('{totalPages}')" size="small">总页数</el-button>
+                          <el-button @click="insertFooterVariable('{date}')" size="small">日期</el-button>
+                          <el-button @click="insertFooterVariable('{time}')" size="small">时间</el-button>
                         </el-button-group>
                         <el-button-group style="margin-left: 10px">
-                          <el-button @click="insertFooterVariable('{totalTasks}')" size="small"
-                            >总任务数</el-button
-                          >
-                          <el-button @click="insertFooterVariable('{completedTasks}')" size="small"
-                            >已完成</el-button
-                          >
-                          <el-button @click="insertFooterVariable('{pendingTasks}')" size="small"
-                            >未完成</el-button
-                          >
+                          <el-button @click="insertFooterVariable('{totalTasks}')" size="small">总任务数</el-button>
+                          <el-button @click="insertFooterVariable('{completedTasks}')" size="small">已完成</el-button>
+                          <el-button @click="insertFooterVariable('{pendingTasks}')" size="small">未完成</el-button>
                         </el-button-group>
                       </div>
-                      <el-input
-                        v-model="printSettings.footerTemplate"
-                        type="textarea"
-                        :rows="6"
+                      <el-input v-model="printSettings.footerTemplate" type="textarea" :rows="6"
                         placeholder="输入页脚HTML内容，可以使用变量：{page}、{totalPages}、{date}、{time}、{totalTasks}、{completedTasks}、{pendingTasks}"
-                        @input="updatePreview"
-                        resize="none"
-                      />
+                        @input="updatePreview" resize="none" />
                     </div>
                   </el-tab-pane>
 
@@ -324,39 +218,20 @@
                     <div class="template-editor">
                       <div class="editor-toolbar">
                         <el-button-group>
-                          <el-button @click="insertTitleVariable('{title}')" size="small"
-                            >主标题</el-button
-                          >
-                          <el-button @click="insertTitleVariable('{subtitle}')" size="small"
-                            >副标题</el-button
-                          >
-                          <el-button @click="insertTitleVariable('{date}')" size="small"
-                            >日期</el-button
-                          >
-                          <el-button @click="insertTitleVariable('{time}')" size="small"
-                            >时间</el-button
-                          >
+                          <el-button @click="insertTitleVariable('{title}')" size="small">主标题</el-button>
+                          <el-button @click="insertTitleVariable('{subtitle}')" size="small">副标题</el-button>
+                          <el-button @click="insertTitleVariable('{date}')" size="small">日期</el-button>
+                          <el-button @click="insertTitleVariable('{time}')" size="small">时间</el-button>
                         </el-button-group>
                         <el-button-group style="margin-left: 10px">
-                          <el-button @click="insertTitleVariable('{totalTasks}')" size="small"
-                            >任务总数</el-button
-                          >
-                          <el-button @click="insertTitleVariable('{user}')" size="small"
-                            >用户</el-button
-                          >
-                          <el-button @click="insertTitleVariable('{project}')" size="small"
-                            >项目</el-button
-                          >
+                          <el-button @click="insertTitleVariable('{totalTasks}')" size="small">任务总数</el-button>
+                          <el-button @click="insertTitleVariable('{user}')" size="small">用户</el-button>
+                          <el-button @click="insertTitleVariable('{project}')" size="small">项目</el-button>
                         </el-button-group>
                       </div>
-                      <el-input
-                        v-model="printSettings.titleTemplate"
-                        type="textarea"
-                        :rows="4"
+                      <el-input v-model="printSettings.titleTemplate" type="textarea" :rows="4"
                         placeholder="输入标题HTML内容，可以使用变量：{title}、{subtitle}、{date}、{time}、{totalTasks}、{user}、{project}"
-                        @input="updatePreview"
-                        resize="none"
-                      />
+                        @input="updatePreview" resize="none" />
 
                       <div class="template-preview">
                         <h4>预览效果：</h4>
@@ -369,35 +244,19 @@
                     <div class="template-editor">
                       <div class="editor-toolbar">
                         <el-button-group>
-                          <el-button @click="insertStyle('.task-title')" size="small"
-                            >任务标题</el-button
-                          >
-                          <el-button @click="insertStyle('.task-description')" size="small"
-                            >任务描述</el-button
-                          >
-                          <el-button @click="insertStyle('.task-meta')" size="small"
-                            >任务元信息</el-button
-                          >
-                          <el-button @click="insertStyle('.subtask-item')" size="small"
-                            >子任务</el-button
-                          >
+                          <el-button @click="insertStyle('.task-title')" size="small">任务标题</el-button>
+                          <el-button @click="insertStyle('.task-description')" size="small">任务描述</el-button>
+                          <el-button @click="insertStyle('.task-meta')" size="small">任务元信息</el-button>
+                          <el-button @click="insertStyle('.subtask-item')" size="small">子任务</el-button>
                         </el-button-group>
                         <el-button-group style="margin-left: 10px">
                           <el-button @click="insertStyle('.header')" size="small">页眉</el-button>
                           <el-button @click="insertStyle('.footer')" size="small">页脚</el-button>
-                          <el-button @click="insertStyle('.title-section')" size="small"
-                            >标题区</el-button
-                          >
+                          <el-button @click="insertStyle('.title-section')" size="small">标题区</el-button>
                         </el-button-group>
                       </div>
-                      <el-input
-                        v-model="printSettings.customCSS"
-                        type="textarea"
-                        :rows="8"
-                        placeholder="输入自定义CSS样式"
-                        @input="updatePreview"
-                        resize="none"
-                      />
+                      <el-input v-model="printSettings.customCSS" type="textarea" :rows="8" placeholder="输入自定义CSS样式"
+                        @input="updatePreview" resize="none" />
                     </div>
                   </el-tab-pane>
                 </el-tabs>
@@ -411,7 +270,9 @@
           <div class="preview-header">
             <div class="preview-title">
               <h3>
-                <el-icon><View /></el-icon> 打印预览
+                <el-icon>
+                  <View />
+                </el-icon> 打印预览
               </h3>
               <div class="preview-info">
                 <el-tag type="info" size="small"> {{ filteredTasks.length }} 个任务 </el-tag>
@@ -426,15 +287,8 @@
                 <el-button @click="zoomOut" :icon="ZoomOut" circle size="small" />
               </el-tooltip>
 
-              <el-slider
-                v-model="zoom"
-                :min="30"
-                :max="200"
-                :step="10"
-                :format-tooltip="(val) => `${val}%`"
-                style="width: 120px; margin: 0 8px"
-                size="small"
-              />
+              <el-slider v-model="zoom" :min="30" :max="200" :step="10" :format-tooltip="(val) => `${val}%`"
+                style="width: 120px; margin: 0 8px" size="small" />
 
               <el-tooltip content="放大预览" placement="top">
                 <el-button @click="zoomIn" :icon="ZoomIn" circle size="small" />
@@ -449,24 +303,18 @@
               <!-- 在预览控制区域修改导出按钮 -->
               <el-dropdown @command="handleExport" trigger="click" placement="bottom">
                 <el-button type="primary" size="small">
-                  <el-icon><Download /></el-icon>
+                  <el-icon>
+                    <Download />
+                  </el-icon>
                   导出
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item command="pdf" :icon="Document"
-                      >导出PDF（当前页）</el-dropdown-item
-                    >
-                    <el-dropdown-item command="pdf-all" :icon="DocumentCopy"
-                      >导出完整PDF</el-dropdown-item
-                    >
-                    <el-dropdown-item divided command="html" :icon="Document"
-                      >导出HTML</el-dropdown-item
-                    >
+                    <el-dropdown-item command="pdf" :icon="Document">导出PDF（当前页）</el-dropdown-item>
+                    <el-dropdown-item command="pdf-all" :icon="DocumentCopy">导出完整PDF</el-dropdown-item>
+                    <el-dropdown-item divided command="html" :icon="Document">导出HTML</el-dropdown-item>
                     <el-dropdown-item command="image" :icon="Picture">导出图片</el-dropdown-item>
-                    <el-dropdown-item command="image-hd" :icon="PictureRounded"
-                      >导出高清图片</el-dropdown-item
-                    >
+                    <el-dropdown-item command="image-hd" :icon="PictureRounded">导出高清图片</el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
@@ -474,18 +322,10 @@
           </div>
 
           <div class="preview-container" @wheel="handleWheel" ref="previewContainerRef">
-            <div
-              class="paper"
-              :class="[printSettings.style, printSettings.orientation]"
-              :style="paperStyle"
-              ref="paperRef"
-            >
+            <div class="paper" :class="[printSettings.style, printSettings.orientation]" :style="paperStyle"
+              ref="paperRef">
               <!-- 自定义页眉 -->
-              <div
-                v-if="printSettings.headerTemplate"
-                class="page-header"
-                v-html="getParsedHeader(1)"
-              ></div>
+              <div v-if="printSettings.headerTemplate" class="page-header" v-html="getParsedHeader(1)"></div>
 
               <!-- 标题区域 -->
               <div class="title-section" v-if="printSettings.titleTemplate">
@@ -507,10 +347,7 @@
                       </el-tag>
                     </template>
                     <template v-if="printSettings.filterStatus !== undefined">
-                      <el-tag
-                        size="small"
-                        :type="printSettings.filterStatus ? 'success' : 'danger'"
-                      >
+                      <el-tag size="small" :type="printSettings.filterStatus ? 'success' : 'danger'">
                         状态: {{ printSettings.filterStatus ? '已完成' : '未完成' }}
                       </el-tag>
                     </template>
@@ -521,34 +358,20 @@
               <!-- 打印内容 -->
               <div class="print-content" :style="contentStyle">
                 <!-- 任务内容 - 根据选择的样式渲染 -->
-                <component
-                  :is="getStyleComponent()"
-                  :tasks="paginatedTasks"
-                  :settings="printSettings"
-                  :page="currentPage"
-                />
+                <component :is="getStyleComponent()" :tasks="paginatedTasks" :settings="printSettings"
+                  :page="currentPage" />
 
                 <!-- 分页器 -->
                 <div v-if="totalPages > 1" class="pagination-section">
-                  <el-pagination
-                    v-model:current-page="currentPage"
-                    :page-size="printSettings.tasksPerPage"
-                    :total="filteredTasks.length"
-                    :pager-count="5"
-                    layout="prev, pager, next"
-                    small
-                    background
-                  />
+                  <el-pagination v-model:current-page="currentPage" :page-size="printSettings.tasksPerPage"
+                    :total="filteredTasks.length" :pager-count="5" layout="prev, pager, next" small background />
                 </div>
 
                 <!-- 统计信息 -->
-                <div
-                  v-if="
-                    printSettings.displayOptions.includes('showStatistics') &&
-                    filteredTasks.length > 0
-                  "
-                  class="statistics-section"
-                >
+                <div v-if="
+                  printSettings.displayOptions.includes('showStatistics') &&
+                  filteredTasks.length > 0
+                " class="statistics-section">
                   <el-descriptions title="任务统计" :column="4" border size="small">
                     <el-descriptions-item label="任务总数">
                       <el-tag size="small">{{ filteredTasks.length }}</el-tag>
@@ -560,16 +383,12 @@
                       <el-tag type="warning" size="small">{{ pendingCount }}</el-tag>
                     </el-descriptions-item>
                     <el-descriptions-item label="完成率">
-                      <el-tag
-                        :type="
-                          completionRate >= 80
-                            ? 'success'
-                            : completionRate >= 50
-                              ? 'warning'
-                              : 'danger'
-                        "
-                        size="small"
-                      >
+                      <el-tag :type="completionRate >= 80
+                        ? 'success'
+                        : completionRate >= 50
+                          ? 'warning'
+                          : 'danger'
+                        " size="small">
                         {{ completionRate }}%
                       </el-tag>
                     </el-descriptions-item>
@@ -578,11 +397,8 @@
               </div>
 
               <!-- 自定义页脚 -->
-              <div
-                v-if="printSettings.footerTemplate"
-                class="page-footer"
-                v-html="getParsedFooter(1, totalPages)"
-              ></div>
+              <div v-if="printSettings.footerTemplate" class="page-footer" v-html="getParsedFooter(1, totalPages)">
+              </div>
             </div>
           </div>
         </div>
@@ -593,11 +409,15 @@
       <div class="dialog-footer">
         <div class="footer-left">
           <el-button @click="resetSettings" plain>
-            <el-icon><Refresh /></el-icon>
+            <el-icon>
+              <Refresh />
+            </el-icon>
             重置设置
           </el-button>
           <el-button @click="saveTemplate" plain>
-            <el-icon><FolderAdd /></el-icon>
+            <el-icon>
+              <FolderAdd />
+            </el-icon>
             保存模板
           </el-button>
         </div>
@@ -607,31 +427,27 @@
             <el-icon><Download /></el-icon>
             导出PDF
           </el-button> -->
-          <el-dropdown @command="handleExport" trigger="click" >
-                <el-button type="primary" >
-                  <el-icon><Download /></el-icon>
-                  导出
-                </el-button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item command="pdf" :icon="Document"
-                      >导出PDF（当前页）</el-dropdown-item
-                    >
-                    <el-dropdown-item command="pdf-all" :icon="DocumentCopy"
-                      >导出完整PDF</el-dropdown-item
-                    >
-                    <el-dropdown-item divided command="html" :icon="Document"
-                      >导出HTML</el-dropdown-item
-                    >
-                    <el-dropdown-item command="image" :icon="Picture">导出图片</el-dropdown-item>
-                    <el-dropdown-item command="image-hd" :icon="PictureRounded"
-                      >导出高清图片</el-dropdown-item
-                    >
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
+          <el-dropdown @command="handleExport" trigger="click">
+            <el-button type="primary">
+              <el-icon>
+                <Download />
+              </el-icon>
+              导出
+            </el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="pdf" :icon="Document">导出PDF（当前页）</el-dropdown-item>
+                <el-dropdown-item command="pdf-all" :icon="DocumentCopy">导出完整PDF</el-dropdown-item>
+                <el-dropdown-item divided command="html" :icon="Document">导出HTML</el-dropdown-item>
+                <el-dropdown-item command="image" :icon="Picture">导出图片</el-dropdown-item>
+                <el-dropdown-item command="image-hd" :icon="PictureRounded">导出高清图片</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
           <el-button @click="handlePrint" type="success">
-            <el-icon><Printer /></el-icon>
+            <el-icon>
+              <Printer />
+            </el-icon>
             立即打印
           </el-button>
         </div>
@@ -1810,22 +1626,18 @@ onMounted(() => {
         overflow: auto;
         padding: 20px;
         background:
-          linear-gradient(
-            45deg,
+          linear-gradient(45deg,
             #f5f7fa 25%,
             transparent 25%,
             transparent 75%,
             #f5f7fa 75%,
-            #f5f7fa
-          ),
-          linear-gradient(
-            45deg,
+            #f5f7fa),
+          linear-gradient(45deg,
             #f5f7fa 25%,
             transparent 25%,
             transparent 75%,
             #f5f7fa 75%,
-            #f5f7fa
-          );
+            #f5f7fa);
         background-size: 20px 20px;
         background-position:
           0 0,
@@ -1921,6 +1733,7 @@ onMounted(() => {
     gap: 10px;
   }
 }
+
 /* 添加打印相关样式 */
 .no-print {
   @media print {

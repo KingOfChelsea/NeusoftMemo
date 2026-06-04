@@ -58,7 +58,7 @@
         <SvgIcon name="Claude" class="" style="font-size: 24px; color: aqua;" />
         <SvgIcon name="tongyiqianwenTongyi-Qianwen" class="" style="font-size: 24px; color: aqua;" />
         <!-- <el-image width='100' src="/other/signature.png" /> -->
-        <el-image style="width: 50px;"  src="/other/signature.png" :fit="fit" />
+        <el-image style="width: 50px;" src="/other/signature.png" />
       </div>
     </div>
 
