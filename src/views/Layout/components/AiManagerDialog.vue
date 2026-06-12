@@ -124,10 +124,10 @@
           <el-table-column prop="url" label="网址" min-width="200">
             <template #default="{ row }">
               <div class="url-cell">
-                <el-link :href="row.url" target="_blank" type="primary" :underline="false" class="app-url">
+                <el-link :href="row.url" target="_blank" type="primary" underline="never" class="app-url">
                   {{ row.url }}
                 </el-link>
-                <el-button type="text" size="small" @click="copyUrl(row.url)" class="copy-btn">
+                <el-button type="primary" size="small" @click="copyUrl(row.url)" class="copy-btn">
                   <el-icon>
                     <CopyDocument />
                   </el-icon>
@@ -168,7 +168,7 @@
                 </el-button>
 
                 <el-dropdown trigger="click" @command="(cmd) => handleCommand(cmd, row)">
-                  <el-button type="text" size="small" class="more-btn">
+                  <el-button type="primary" size="small" class="more-btn">
                     更多
                     <el-icon>
                       <ArrowDown />
@@ -240,7 +240,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue';
+import { ref, computed, watch, nextTick, onMounted } from 'vue';
+
+onMounted(() => {
+  // 检查浏览器是否支持必要的API
+  if (typeof document.createElement('a').setAttribute !== 'function') {
+    console.warn('当前浏览器可能不支持完整的DOM操作，请更新浏览器或清除缓存');
+  }
+});
 
 // 定义 props
 const props = defineProps({
@@ -468,10 +475,17 @@ const exportApps = () => {
   const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
 
   const exportFileDefaultName = `ai-apps-backup-${new Date().toISOString().split('T')[0]}.json`;
-
+  // 添加参数检查
+  if (!dataUri || !exportFileDefaultName) {
+    console.error('导出参数无效');
+    ElMessage.error('导出参数无效');
+    return;
+  }
   const linkElement = document.createElement('a');
-  linkElement.setAttribute('href', dataUri);
-  linkElement.setAttribute('download', exportFileDefaultName);
+  // linkElement.setAttribute('href', dataUri);
+  // linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.href = dataUri;
+  linkElement.download = exportFileDefaultName;
   linkElement.click();
 
   ElMessage.success('配置导出成功');

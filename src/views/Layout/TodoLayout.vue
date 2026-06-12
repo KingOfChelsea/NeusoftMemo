@@ -103,8 +103,7 @@
         <!-- 版本号 Created By ZaneXu 2025 -->
         <span class="app-version">版本: v{{ currentVersion }}</span>
         <el-avatar size="small">
-          <SvgIcon name="ChatGPT" style="font-size: 24px; color: aqua;" />
-
+          <!-- <SvgIcon name="ChatGPT" style="font-size: 24px; color: aqua;" /> -->
         </el-avatar>
       </div>
     </header>
@@ -244,7 +243,7 @@
 
               <el-button icon="Printer" size="small" @click="printData" type="primary" color="#3D5AFE"> 打印 </el-button>
 
-              <!-- 筛选操作 - 多巴胺配色 -->
+
               <el-button icon="Finished" size="small" @click="setCompletionFilter('completed')" color="#3fc1c9"
                 style="color: white;">
                 已完成
@@ -312,7 +311,7 @@
                     <span class="priority" :class="todo.priority">
                       <el-tag effect="light" type="success" size="large" hi>{{
                         todo.priority.toUpperCase()
-                        }}</el-tag>
+                      }}</el-tag>
                     </span>
                     {{ todo.title }}
                   </div>
@@ -365,7 +364,7 @@
                           <span class="priority" :class="todo.priority">
                             <el-tag effect="light" type="danger" size="large">{{
                               todo.priority.toUpperCase()
-                              }}</el-tag>
+                            }}</el-tag>
                           </span>
                           {{ todo.title }}
                         </div>
@@ -373,7 +372,7 @@
                         <div class="meta">
                           <el-tag v-for="tag in todo.tags" :key="tag" size="small">{{
                             tag
-                            }}</el-tag>
+                          }}</el-tag>
                           <span class="deadline" :class="{ expired: isExpired(todo.deadline) }">
                             {{ todo.deadline ? '截止：' + formatDate(todo.deadline) : '' }}
                           </span>
@@ -522,6 +521,13 @@
                         {{ value }}
                       </el-tag>
                       <el-button-group>
+                        <el-button size="small" type="success" plain class="action-btn"
+                          @click="copyTaskList(sub.title)">
+                          <el-icon>
+                            <Paperclip />
+                          </el-icon>
+                          复制
+                        </el-button>
                         <el-button size="small" type="primary" plain class="action-btn"
                           @click="uploadDialogVisible = true">
                           <el-icon>

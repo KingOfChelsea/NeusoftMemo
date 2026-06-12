@@ -1,15 +1,5 @@
 <template>
   <div class="ai-selector-wrapper">
-    <!-- 触发按钮
-    <div ref="triggerRef" class="trigger-wrapper">
-      <slot>
-        <el-button color="#fdeff2" class="ai-button">
-          <SvgIcon name="ChatGPT" style="font-size: 24px; color: aqua;" />
-          <span>AI</span>
-        </el-button>
-      </slot>
-    </div> -->
-
     <!-- 主弹窗 -->
     <el-popover v-model:visible="popoverVisible" trigger="click" placement="bottom-start" width="420px"
       popper-class="ai-selector-popover" transition="el-zoom-in-top" :show-arrow="false">
@@ -741,7 +731,8 @@ const handleEditApp = (app) => {
 };
 // 打开管理对话框
 const openManagerDialog = () => {
-  managerVisible.value = true;
+  // managerVisible.value = true;
+  console.log('openManagerDialog');
 };
 
 // 管理功能相关方法

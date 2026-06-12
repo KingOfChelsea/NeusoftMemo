@@ -23,6 +23,16 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    proxy: {
+      '/collect': {
+        // 代理您请求的路径
+        target: 'http://collect-v6.51.la', // 目标API地址
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   // build: {
   //   outDir: 'dist',
   //   minify: 'terser', // 需要先安装 terser

@@ -423,10 +423,7 @@
         </div>
         <div class="footer-right">
           <el-button @click="dialogVisible = false">取消</el-button>
-          <!-- <el-button @click="exportPDF" :loading="exporting" type="primary">
-            <el-icon><Download /></el-icon>
-            导出PDF
-          </el-button> -->
+
           <el-dropdown @command="handleExport" trigger="click">
             <el-button type="primary">
               <el-icon>
@@ -1268,63 +1265,7 @@ const exportHighResImage = async () => {
   }
 }
 
-// const generatePrintHTML = () => {
-//   return `
-//     <!DOCTYPE html>
-//     <html>
-//     <head>
-//       <title>任务清单打印</title>
-//       <meta charset="UTF-8">
-//       <style>
-//         @page {
-//           size: ${printSettings.value.paperSize} ${printSettings.value.orientation};
-//           margin: ${printSettings.value.margin}mm;
-//         }
 
-//         body {
-//           margin: 0;
-//           padding: 0;
-//           font-family: 'Microsoft YaHei', sans-serif;
-//           font-size: ${printSettings.value.fontSize}px;
-//           line-height: ${printSettings.value.lineHeight};
-//           color: #333;
-//         }
-
-//         ${printSettings.value.customCSS}
-
-//         .paper {
-//           width: 100%;
-//           height: 100%;
-//           page-break-inside: avoid;
-//         }
-
-//         .page-header, .page-footer {
-//           page-break-inside: avoid;
-//         }
-
-//         .task-item {
-//           page-break-inside: avoid;
-//           break-inside: avoid;
-//         }
-
-//         @media print {
-//           .no-print {
-//             display: none !important;
-//           }
-//         }
-//       </style>
-//     </head>
-//     <body>
-//       ${paperRef.value.outerHTML}
-//       <script>
-//         window.onload = function() {
-//           window.print();
-//         }
-//       <\/script>
-//     </body>
-//     </html>
-//   `
-// }
 
 const resetSettings = () => {
   printSettings.value = {
