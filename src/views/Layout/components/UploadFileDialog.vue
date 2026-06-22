@@ -6,7 +6,7 @@
         :on-preview="handlePreview" :on-remove="handleRemove" :before-remove="beforeRemove" :on-success="handleSuccess"
         :on-error="handleError" :on-exceed="handleExceed" :before-upload="beforeUpload" :file-list="fileList"
         :auto-upload="false" :limit="1" :on-change="handleChange" :show-file-list="false" drag>
-        <el-icon class="el-icon--upload">
+        <el-icon class="el-icon--upload" color="#44617b">
           <upload-filled />
         </el-icon>
         <div class="el-upload__text">
@@ -250,7 +250,7 @@ const submitUpload = async () => {
       emit('success', [result.data.Message]);
       dialogVisible.value = false;
     }, 1000);
-    // console.log(result.data.Message);
+    console.log(result.data.Message);
 
   } catch (error) {
     // 上传失败

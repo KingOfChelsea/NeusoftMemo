@@ -491,15 +491,23 @@
                   </div>
                   <el-button-group>
                     <el-button type="primary" color="#626aef" size="small" @click="openSubtaskDialog()">
-                      添加明细<el-icon class="el-icon--right">
+                      <el-icon class="el-icon--right">
                         <Plus />
                       </el-icon>
+                      添加明细
                     </el-button>
                     <el-button type="primary" color="#1fab89" size="small" @click="copyTaskList('completed')">
                       <el-icon>
                         <CopyDocument />
                       </el-icon>
                       复制已完成
+                    </el-button>
+                    <el-button type="primary" color="#824880" size="small" @click="copyTaskList('uncompleted')"
+                      style="color: white;">
+                      <el-icon>
+                        <CopyDocument />
+                      </el-icon>
+                      复制未完成
                     </el-button>
                     <el-button class=".copy_task_btn" type="primary" color="#155263" size="small" style="color: white;"
                       @click="copyTaskList('all')">
@@ -521,8 +529,9 @@
                         {{ value }}
                       </el-tag>
                       <el-button-group>
+                        <!-- sub.title -->
                         <el-button size="small" type="success" plain class="action-btn"
-                          @click="copyTaskList(sub.title)">
+                          @click="copyTaskList('single', sub.title)">
                           <el-icon>
                             <Paperclip />
                           </el-icon>
@@ -615,11 +624,7 @@ import CreateTagDialog from './components/CreateTagDialog.vue'
 import CreateProjectDialog from './components/CreateProjectDialog.vue'
 import { Delete, Edit, Setting, Lock } from '@element-plus/icons-vue'
 import LayoutFooter from './LayoutFooter.vue'
-import {
-  toggleFullScreen,
-  isFullscreen as checkFullscreen,
-  onFullscreenChange,
-} from '@/utils/fullscreen'
+import { toggleFullScreen, isFullscreen as checkFullscreen, onFullscreenChange, } from '@/utils/fullscreen'
 import PriorityEditDialog from './components/PriorityEditDialog.vue'
 import { getTaskStatsByTime } from '@/utils/taskUtils'
 import UploadFileDialog from './components/UploadFileDialog.vue'
@@ -1667,7 +1672,7 @@ const printData = () => {
 /**
  * 复制子任务 Added By Zane Xu 2026-04-16
  */
-const copyTaskList = (type) => {
+const copyTaskList = (type, value) => {
   if (!selectedTask.value || !selectedTask.value.subtasks) return
 
   let textToCopy = ''
@@ -1679,9 +1684,18 @@ const copyTaskList = (type) => {
       const completed = subtasks.filter(s => s.completed)
       textToCopy = completed.map(s => s.title).join(';')
       break
+    case 'uncompleted':
+      // 只复制未完成的子任务
+      const uncompleted = subtasks.filter(s => !s.completed)
+      textToCopy = uncompleted.map(s => s.title).join('\n')
+      break
     case 'all':
       // 复制所有子任务
       textToCopy = subtasks.map(s => `[${s.completed ? '✅' : 'x'}] ${s.title}`).join('\n')
+      break
+    case 'single':
+      // 复制单个子任务
+      textToCopy = value
       break
     default:
       textToCopy = subtasks.map(s => s.title).join('\n')

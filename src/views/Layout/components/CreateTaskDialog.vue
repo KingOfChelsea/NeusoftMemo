@@ -22,13 +22,13 @@
 
             <template #footer>
               <template v-if="!showCustomInput">
-                <el-button type="text" size="small" @click="showCustomInput = true">自定义添加</el-button>
+                <el-button type="primary" size="small" @click="showCustomInput = true">自定义添加</el-button>
               </template>
               <template v-else>
                 <div class="custom-input-area">
                   <el-input v-model="newTag" placeholder="请输入标签名称" size="small" class="custom-input"
                     @keyup.enter="addTag" clearable />
-                  <el-button type="text" size="small" @click="addTag">添加</el-button>
+                  <el-button type="primary " size="small" @click="addTag">添加</el-button>
                 </div>
               </template>
             </template>
@@ -85,7 +85,7 @@
       <div class="subtask-section">
         <div class="subtask-header">
           <span>子任务</span>
-          <el-button text size="small" @click="addSubtask">+ 添加子任务</el-button>
+          <el-button type="success" size="small" @click="addSubtask">+ 添加子任务</el-button>
         </div>
 
         <div v-if="form.subtasks.length === 0" class="subtask-empty">
@@ -109,9 +109,9 @@
               </el-option>
             </el-select>
 
-            <el-input v-model="sub.title" placeholder="子任务标题" size="small" style="width: 80%" />
+            <el-input v-model="sub.title" placeholder="子任务标题" size="small" type="textarea" style="width: 80% ;" />
             <el-button type="primary" :icon="Link" size="small" @click="openUploadDialog(index)">上传</el-button>
-            <el-button type="text" size="small" @click="removeSubtask(index)">删除</el-button>
+            <el-button type="danger" size="small" @click="removeSubtask(index)">删除</el-button>
           </div>
         </div>
 
