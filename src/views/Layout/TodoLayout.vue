@@ -496,7 +496,7 @@
                       </el-icon>
                       添加明细
                     </el-button>
-                    <el-button type="primary" color="#626aef" size="small" @click="openBatchDialog()">
+                    <el-button type="primary" color="#228B22" size="small" @click="openBatchDialog()">
                       <el-icon class="el-icon--right">
                         <Connection />
                       </el-icon>

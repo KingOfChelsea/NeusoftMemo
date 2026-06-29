@@ -186,8 +186,13 @@
                             @click="addSubtask"
                             >+ 添加子任务</el-button
                         >
-                        <el-button type="success" size="small" @click="openBatchDialog"
-                            >+ 批量添加子任务</el-button
+                        <el-button
+                            type="success"
+                            size="small"
+                            @click="openBatchDialog"
+                            color="#FF007F"
+                            ><el-icon><Connection /></el-icon>
+                            批量添加子任务</el-button
                         >
                     </div>
                 </div>
@@ -306,7 +311,7 @@ import { Link } from '@element-plus/icons-vue';
 import UploadAttachmentDialog from './UploadFileDialog.vue';
 import dayjs from 'dayjs';
 import QuickInsertManager from './QuickInsertManager.vue';
-import BatchAddDialog from './BatchAddDialog.vue'
+import BatchAddDialog from './BatchAddDialog.vue';
 
 const emit = defineEmits([
     'update:visible',
@@ -420,11 +425,11 @@ function removeSubtask(index) {
 }
 
 // 批量添加子任务
-const batchDialogRef = ref(null)
+const batchDialogRef = ref(null);
 
 // 打开批量添加对话框
 function openBatchDialog() {
-    batchDialogRef.value.open()
+    batchDialogRef.value.open();
 }
 
 // 处理批量添加确认
@@ -436,11 +441,11 @@ function handleBatchConfirm(items) {
             completed: false,
             Link: [],
             index: form.subtasks.length,
-            assignees: []
-        })
-    })
+            assignees: [],
+        });
+    });
 
-    ElMessage.success(`成功添加 ${items.length} 个子任务`)
+    ElMessage.success(`成功添加 ${items.length} 个子任务`);
 }
 
 const newTag = ref('');
