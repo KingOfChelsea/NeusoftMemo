@@ -1600,37 +1600,37 @@ const allUsers = ref(
     {
       id: 1,
       name: '徐振宇',
-      department: '技术部',
+      department: '第三交付',
       avatar:
-        'https://iconfont.alicdn.com/p/illus/preview_image/pMhdd5wW6xfB/fcbc3cdc-b4b1-4dd2-8607-bebdc3d2e835.png',
+        'https://sd.qunliao.info/fastdfs7/M00/B9/01/rBUC6Gb1N26AZhvaAAAmpCe-BhE410.jpg',
     },
     {
       id: 2,
       name: 'NIS',
-      department: '产品部',
+      department: 'HIOS',
       avatar:
-        'https://iconfont.alicdn.com/p/user/EKah83c1bmwx/f51d0eec-4e4d-42ac-9a03-b5ca4050ba53.jpeg',
+        'https://sd.qunliao.info/fastdfs7/M00/EF/34/rBUC6GhP74WAHy8zAAAbSBH8azM911.jpg',
     },
     {
       id: 3,
       name: 'HIS',
-      department: '设计部',
+      department: 'HIOS',
       avatar:
-        'https://iconfont.alicdn.com/p/illus/preview_image/pMhdd5wW6xfB/49911626-1af4-4dc7-9004-b8d65cfa6018.png',
+        'https://sd.qunliao.info/fastdfs6/M00/EE/21/rBUESWL6-JaAYDX3AAAhbYsOFwU878.jpg',
     },
     {
       id: 4,
       name: 'LIS',
-      department: '市场部',
+      department: '临床专科',
       avatar:
-        'https://iconfont.alicdn.com/p/illus/preview_image/pMhdd5wW6xfB/2616b2cb-0b98-408f-a0f8-7b76a8e67f9f.png',
+        'https://sd.qunliao.info/fastdfs7/M00/EF/34/rBUC6GhP74WAHy8zAAAbSBH8azM911.jpg',
     },
     {
       id: 5,
       name: '护理管理',
-      department: '运营部',
+      department: 'HIOS',
       avatar:
-        'https://iconfont.alicdn.com/p/illus/preview_image/pMhdd5wW6xfB/bdf4dc61-b662-4f4d-bd8d-c58b8249eb4e.png',
+        'https://sd.qunliao.info/fastdfs7/M00/01/29/rBUBsmhaXi2AYmFZAAAd3ayqChU529.jpg',
     },
   ],
 )
