@@ -5,10 +5,60 @@
       <!-- 标题和说明 -->
       <div class="dialog-header">
         <h3 class="dialog-title">
-          <i class="title-icon">📋</i>
+          <el-icon class="title-icon"><List /></el-icon>
           子任务
         </h3>
         <p class="dialog-desc">为任务添加具体的子任务内容，让任务更清晰可执行</p>
+      </div>
+
+      <!-- JIRA号配置区 -->
+      <div class="jira-config">
+        <div class="jira-label-container">
+          <label class="input-label">JIRA号</label>
+          <div class="jira-actions">
+            <el-button
+              type="warning"
+              size="small"
+              @click="generateJira"
+              :icon="Refresh"
+              circle
+              class="generate-jira-btn"
+            />
+            <el-button
+              type="success"
+              size="small"
+              @click="insertJiraToTitle"
+              :disabled="!jiraNumber"
+              class="insert-jira-btn"
+            >
+              <el-icon><Plus /></el-icon>插入
+            </el-button>
+          </div>
+        </div>
+
+        <div class="jira-input-group">
+          <el-input
+            v-model="projectPrefix"
+            placeholder="项目前缀"
+            maxlength="10"
+            class="prefix-input"
+          />
+          <span class="separator">-</span>
+          <el-input
+            v-model="jiraNumber"
+            placeholder="生成或输入JIRA号"
+            class="jira-input"
+            clearable
+            @clear="jiraNumber = ''"
+          />
+        </div>
+
+        <div class="jira-preview" v-if="jiraNumber">
+          <span class="preview-label">预览：</span>
+          <el-tag type="warning" size="small" effect="plain">
+            {{ formattedJira }}
+          </el-tag>
+        </div>
       </div>
 
       <!-- 输入区域 -->
@@ -22,7 +72,7 @@
           class="task-input" />
         <div class="input-hint-container">
           <div class="hint-text">
-            <i class="hint-icon">💡</i>
+            <el-icon class="hint-icon"><InfoFilled /></el-icon>
             <span>按 <kbd>Enter</kbd> 键快速确认</span>
           </div>
           <div class="required-hint" v-if="!title.trim()">* 请输入子任务内容</div>
@@ -46,7 +96,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { Refresh, InfoFilled, List, Plus } from '@element-plus/icons-vue';
 
 const props = defineProps({
   modelValue: Boolean,
@@ -56,7 +107,34 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'save']);
 
 const title = ref('');
+const jiraNumber = ref('');
+const projectPrefix = ref('PROJ');
 
+// 格式化后的完整JIRA号
+const formattedJira = computed(() => {
+  if (!jiraNumber.value) return ''
+  return `【${projectPrefix.value}-${jiraNumber.value}】`
+})
+
+// 生成JIRA号
+function generateJira() {
+  const date = new Date().toISOString().slice(0, 10).replace(/-/g, '')
+  const random = Math.random().toString(36).substring(2, 10).toUpperCase()
+  const random2 = Math.random().toString(36).substring(2, 8).toUpperCase()
+  jiraNumber.value = `${date}-${random}-${random2}`
+}
+
+// 插入JIRA号到标题
+function insertJiraToTitle() {
+  const jira = formattedJira.value
+  if (title.value.trim()) {
+    title.value = `${jira}\n${title.value}`
+  } else {
+    title.value = jira
+  }
+}
+
+// 保留原有逻辑不变
 watch(
   () => props.subtask,
   (val) => {
@@ -76,7 +154,7 @@ function confirm() {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .subtask-dialog {
   padding: 4px 8px 8px;
 }
@@ -100,8 +178,9 @@ function confirm() {
 }
 
 .title-icon {
-  font-size: 18px;
+  font-size: 20px;
   opacity: 0.9;
+  color: #3498db;
 }
 
 .dialog-desc {
@@ -110,6 +189,136 @@ function confirm() {
   margin: 0;
   line-height: 1.6;
   font-weight: 400;
+}
+
+// JIRA配置区域
+.jira-config {
+  margin-bottom: 22px;
+  padding: 16px;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 1.5px dashed #f59e0b;
+  border-radius: 10px;
+}
+
+.jira-label-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.jira-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.generate-jira-btn {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: rotate(180deg);
+  }
+}
+
+.insert-jira-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+
+  .el-icon {
+    margin-right: 4px;
+  }
+}
+
+.jira-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+
+  .prefix-input {
+    width: 120px;
+
+    :deep(.el-input__wrapper) {
+      border-radius: 8px;
+      border: 1.5px solid #fde68a;
+      background-color: #fffbeb;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #f59e0b;
+        background-color: #fef3c7;
+      }
+
+      &.is-focus {
+        border-color: #d97706;
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+      }
+    }
+
+    :deep(.el-input__inner) {
+      color: #92400e;
+      font-weight: 600;
+      text-align: center;
+      text-transform: uppercase;
+    }
+  }
+
+  .separator {
+    font-size: 20px;
+    color: #92400e;
+    font-weight: bold;
+  }
+
+  .jira-input {
+    flex: 1;
+
+    :deep(.el-input__wrapper) {
+      border-radius: 8px;
+      border: 1.5px solid #fde68a;
+      background-color: #fffbeb;
+      transition: all 0.3s ease;
+
+      &:hover {
+        border-color: #f59e0b;
+        background-color: #fef3c7;
+      }
+
+      &.is-focus {
+        border-color: #d97706;
+        background-color: #fff;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+      }
+    }
+
+    :deep(.el-input__inner) {
+      color: #92400e;
+      font-weight: 500;
+    }
+  }
+}
+
+.jira-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+
+  .preview-label {
+    font-size: 12.5px;
+    color: #64748b;
+  }
+
+  .el-tag {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 10px;
+  }
 }
 
 .input-container {
@@ -190,8 +399,9 @@ function confirm() {
 }
 
 .hint-icon {
-  font-size: 12px;
+  font-size: 14px;
   opacity: 0.7;
+  color: #3498db;
 }
 
 kbd {

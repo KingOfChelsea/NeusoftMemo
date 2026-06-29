@@ -1,282 +1,427 @@
 <template>
-  <el-dialog title="新建任务" width="600px" :draggable="true" :model-value="visible" @close="handleClose"
-    class="create-task-dialog" @keydown.enter.prevent="handleKeydown" @keydown.esc.prevent="handleClose">
-    <!-- 改为一个 @keydown.enter.prevent -->
-    <div class="dialog-body">
-      <!-- 1.标题 -->
-      <div class="form-item title">
-        <el-input v-model="form.title" placeholder="请输入任务标题（必填）" size="large" />
-      </div>
-
-      <!-- 2.描述 -->
-      <div class="form-item">
-        <el-input type="textarea" :rows="3" v-model="form.description" placeholder="任务描述（可选）" />
-      </div>
-
-      <!-- 3.项目 / 优先级 -->
-      <div class="form-row">
-        <div class="form-item">
-          <label>项目</label>
-          <el-select v-model="form.project" placeholder="选择项目">
-            <el-option v-for="(value, index) in projectOptions" :key="index" :label="value" :value="value" />
-
-            <template #footer>
-              <template v-if="!showCustomInput">
-                <el-button type="primary" size="small" @click="showCustomInput = true">自定义添加</el-button>
-              </template>
-              <template v-else>
-                <div class="custom-input-area">
-                  <el-input v-model="newTag" placeholder="请输入标签名称" size="small" class="custom-input"
-                    @keyup.enter="addTag" clearable />
-                  <el-button type="primary " size="small" @click="addTag">添加</el-button>
+    <el-dialog
+        title="新建任务"
+        width="600px"
+        :draggable="true"
+        :model-value="visible"
+        @close="handleClose"
+        class="create-task-dialog"
+        @keydown.enter.prevent="handleKeydown"
+        @keydown.esc.prevent="handleClose"
+    >
+        <!-- 改为一个 @keydown.enter.prevent -->
+        <div class="dialog-body">
+            <!-- 1.标题 -->
+            <div class="form-item title">
+                <el-input
+                    v-model="form.title"
+                    placeholder="请输入任务标题（必填）"
+                    size="large"
+                />
+                <div class="quick-insert-group">
+                    <el-select
+                        v-model="selectedInsertType"
+                        placeholder="选择插入内容"
+                        size="default"
+                        clearable
+                        style="width: 140px"
+                    >
+                        <el-option
+                            v-for="item in insertOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        />
+                    </el-select>
+                    <el-button
+                        type="primary"
+                        :disabled="!selectedInsertType"
+                        @click="handleQuickInsert"
+                    >
+                        快速插入
+                    </el-button>
                 </div>
-              </template>
-            </template>
-          </el-select>
+            </div>
 
-        </div>
+            <!-- 2.描述 -->
+            <div class="form-item">
+                <el-input
+                    type="textarea"
+                    :rows="3"
+                    v-model="form.description"
+                    placeholder="任务描述（可选）"
+                />
+            </div>
 
-        <!-- 4.优先级 -->
-        <div class="form-item">
-          <label style="display: flex; align-items: center;">优先级
-            <!-- <span>
+            <!-- 3.项目 / 优先级 -->
+            <div class="form-row">
+                <div class="form-item">
+                    <label>项目</label>
+                    <el-select v-model="form.project" placeholder="选择项目">
+                        <el-option
+                            v-for="(value, index) in projectOptions"
+                            :key="index"
+                            :label="value"
+                            :value="value"
+                        />
+
+                        <template #footer>
+                            <template v-if="!showCustomInput">
+                                <el-button
+                                    type="primary"
+                                    size="small"
+                                    @click="showCustomInput = true"
+                                    >自定义添加</el-button
+                                >
+                            </template>
+                            <template v-else>
+                                <div class="custom-input-area">
+                                    <el-input
+                                        v-model="newTag"
+                                        placeholder="请输入标签名称"
+                                        size="small"
+                                        class="custom-input"
+                                        @keyup.enter="addTag"
+                                        clearable
+                                    />
+                                    <el-button
+                                        type="primary "
+                                        size="small"
+                                        @click="addTag"
+                                        >添加</el-button
+                                    >
+                                </div>
+                            </template>
+                        </template>
+                    </el-select>
+                </div>
+
+                <!-- 4.优先级 -->
+                <div class="form-item">
+                    <label style="display: flex; align-items: center"
+                        >优先级
+                        <!-- <span>
               <el-button type='primary' size="small" text @click="openPriorityDialog">
                 <el-icon>
                   <Plus />
                 </el-icon>
               </el-button>
             </span> -->
-          </label>
+                    </label>
 
-          <el-select v-model="form.priority" placeholder="选择优先级" clearable>
-
-            <el-option v-for="priority in priorityList" :key="priority.value"
-              :label="priority.label + ' - ' + priority.desc" :value="priority.label + ' - ' + priority.desc">
-              <div class="priority-option">
-                <el-tag :type="getTagType(priority.value)" size="small" :effect="priority.fixed ? 'dark' : 'light'"
-                  class="priority-badge">
-                  {{ priority.label }}
-                </el-tag>
-                <span class="priority-desc">{{ priority.desc }}</span>
-              </div>
-            </el-option>
-          </el-select>
-        </div>
-
-      </div>
-
-      <!-- 5. 标签 / 截止时间 -->
-      <div class="form-row">
-        <div class="form-item">
-          <label>标签</label>
-          <el-select v-model="form.tags" multiple filterable allow-create default-first-option placeholder="选择或输入标签">
-            <el-option v-for="(tag, index) in tagOptions" :key="index" :label="tag.name" :value="tag.name" />
-          </el-select>
-        </div>
-
-        <div class="form-item">
-          <label>截止时间</label>
-          <el-date-picker v-model="form.deadline" type="date" placeholder="选择日期" style="width: 100%" format="YYYY-MM-DD"
-            value-format="YYYY-MM-DD" />
-        </div>
-      </div>
-
-      <!-- 子任务 -->
-      <div class="subtask-section">
-        <div class="subtask-header">
-          <span>子任务</span>
-          <el-button type="success" size="small" @click="addSubtask">+ 添加子任务</el-button>
-        </div>
-
-        <div v-if="form.subtasks.length === 0" class="subtask-empty">
-          <span>暂无子任务</span>
-        </div>
-
-        <div v-else class="subtask-list">
-          <div class="subtask-item" v-for="(sub, index) in form.subtasks" :key="sub.id">
-            <!-- 选择患者 -->
-            <el-select v-model="sub.assignees" size="small" placeholder="选择或输入相关人"
-              style="width: 300px; margin-right: 10px;" multiple>
-              <el-option v-for="user in allUsers" :key="user.id" :label="user.name + ' - ' + user.department"
-                :value="user.name + ' - ' + user.department">
-                <div style="display: flex; align-items: center;">
-                  <el-avatar :size="20" :src="user.avatar" style="margin-right: 8px;" />
-                  <span>{{ user.name }}</span>
-                  <span style="margin-left: 8px; color: #909399; font-size: 12px;">
-                    {{ user.department }}
-                  </span>
+                    <el-select
+                        v-model="form.priority"
+                        placeholder="选择优先级"
+                        clearable
+                    >
+                        <el-option
+                            v-for="priority in priorityList"
+                            :key="priority.value"
+                            :label="priority.label + ' - ' + priority.desc"
+                            :value="priority.label + ' - ' + priority.desc"
+                        >
+                            <div class="priority-option">
+                                <el-tag
+                                    :type="getTagType(priority.value)"
+                                    size="small"
+                                    :effect="priority.fixed ? 'dark' : 'light'"
+                                    class="priority-badge"
+                                >
+                                    {{ priority.label }}
+                                </el-tag>
+                                <span class="priority-desc">{{
+                                    priority.desc
+                                }}</span>
+                            </div>
+                        </el-option>
+                    </el-select>
                 </div>
-              </el-option>
-            </el-select>
+            </div>
 
-            <el-input v-model="sub.title" placeholder="子任务标题" size="small" type="textarea" style="width: 80% ;" />
-            <el-button type="primary" :icon="Link" size="small" @click="openUploadDialog(index)">上传</el-button>
-            <el-button type="danger" size="small" @click="removeSubtask(index)">删除</el-button>
-          </div>
+            <!-- 5. 标签 / 截止时间 -->
+            <div class="form-row">
+                <div class="form-item">
+                    <label>标签</label>
+                    <el-select
+                        v-model="form.tags"
+                        multiple
+                        filterable
+                        allow-create
+                        default-first-option
+                        placeholder="选择或输入标签"
+                    >
+                        <el-option
+                            v-for="(tag, index) in tagOptions"
+                            :key="index"
+                            :label="tag.name"
+                            :value="tag.name"
+                        />
+                    </el-select>
+                </div>
+
+                <div class="form-item">
+                    <label>截止时间</label>
+                    <el-date-picker
+                        v-model="form.deadline"
+                        type="date"
+                        placeholder="选择日期"
+                        style="width: 100%"
+                        format="YYYY-MM-DD"
+                        value-format="YYYY-MM-DD"
+                    />
+                </div>
+            </div>
+
+            <!-- 子任务 -->
+            <div class="subtask-section">
+                <div class="subtask-header">
+                    <span>子任务</span>
+                    <el-button type="success" size="small" @click="addSubtask"
+                        >+ 添加子任务</el-button
+                    >
+                </div>
+
+                <div v-if="form.subtasks.length === 0" class="subtask-empty">
+                    <span>暂无子任务</span>
+                </div>
+
+                <div v-else class="subtask-list">
+                    <div
+                        class="subtask-item"
+                        v-for="(sub, index) in form.subtasks"
+                        :key="sub.id"
+                    >
+                        <!-- 选择患者 -->
+                        <el-select
+                            v-model="sub.assignees"
+                            size="small"
+                            placeholder="选择或输入相关人"
+                            style="width: 300px; margin-right: 10px"
+                            multiple
+                        >
+                            <el-option
+                                v-for="user in allUsers"
+                                :key="user.id"
+                                :label="user.name + ' - ' + user.department"
+                                :value="user.name + ' - ' + user.department"
+                            >
+                                <div style="display: flex; align-items: center">
+                                    <el-avatar
+                                        :size="20"
+                                        :src="user.avatar"
+                                        style="margin-right: 8px"
+                                    />
+                                    <span>{{ user.name }}</span>
+                                    <span
+                                        style="
+                                            margin-left: 8px;
+                                            color: #909399;
+                                            font-size: 12px;
+                                        "
+                                    >
+                                        {{ user.department }}
+                                    </span>
+                                </div>
+                            </el-option>
+                        </el-select>
+
+                        <el-input
+                            v-model="sub.title"
+                            placeholder="子任务标题"
+                            size="small"
+                            type="textarea"
+                            style="width: 80%"
+                        />
+                        <el-button
+                            type="primary"
+                            :icon="Link"
+                            size="small"
+                            @click="openUploadDialog(index)"
+                            >上传</el-button
+                        >
+                        <el-button
+                            type="danger"
+                            size="small"
+                            @click="removeSubtask(index)"
+                            >删除</el-button
+                        >
+                    </div>
+                </div>
+            </div>
         </div>
 
-      </div>
-    </div>
+        <!-- Footer -->
+        <template #footer>
+            <div class="dialog-footer">
+                <span class="tip">Enter 快速创建 · Esc 取消</span>
+                <div>
+                    <el-button @click="handleReset">一键清空</el-button>
+                    <el-button @click="handleClose">取消</el-button>
+                    <el-button type="primary" @click="handleCreate"
+                        >创建任务</el-button
+                    >
+                </div>
+            </div>
+        </template>
+    </el-dialog>
 
-    <!-- Footer -->
-    <template #footer>
-      <div class="dialog-footer">
-        <span class="tip">Enter 快速创建 · Esc 取消</span>
-        <div>
-          <el-button @click="handleReset">一键清空</el-button>
-          <el-button @click="handleClose">取消</el-button>
-          <el-button type="primary" @click="handleCreate">创建任务</el-button>
-        </div>
-      </div>
-    </template>
-  </el-dialog>
+    <!-- 其他：创建优先级对话框 -->
 
-  <!-- 其他：创建优先级对话框 -->
-
-  <!-- 1.创建优先级对话框 -->
-  <PriorityEditDialog v-model:visible="showPriorityDialog" :mode="dialogMode" />
-  <!-- 2.上传文件对话框 -->
-  <UploadAttachmentDialog v-model="showUploadDialog" :visible="showUploadDialog" @success="handleUploadSuccess"
-    @cancel="handleUploadCancel"></UploadAttachmentDialog>
+    <!-- 1.创建优先级对话框 -->
+    <PriorityEditDialog
+        v-model:visible="showPriorityDialog"
+        :mode="dialogMode"
+    />
+    <!-- 2.上传文件对话框 -->
+    <UploadAttachmentDialog
+        v-model="showUploadDialog"
+        :visible="showUploadDialog"
+        @success="handleUploadSuccess"
+        @cancel="handleUploadCancel"
+    ></UploadAttachmentDialog>
 </template>
 
 <script setup>
-import { reactive, watch, defineProps, defineEmits, ref } from "vue";
-import PriorityEditDialog from "./PriorityEditDialog.vue";
-import { Link } from "@element-plus/icons-vue";
+import { reactive, watch, defineProps, defineEmits, ref } from 'vue';
+import PriorityEditDialog from './PriorityEditDialog.vue';
+import { Link } from '@element-plus/icons-vue';
 import UploadAttachmentDialog from './UploadFileDialog.vue';
+import dayjs from 'dayjs'
 
-const emit = defineEmits(["update:visible", "create", "update:tagOptions", "update:projectOptions"]);
+const emit = defineEmits([
+    'update:visible',
+    'create',
+    'update:tagOptions',
+    'update:projectOptions',
+]);
 
 const props = defineProps({
-  visible: Boolean,
-  task: Object, // 编辑时传入任务
-  tagOptions: Object, // 标签
-  projectOptions: Object, //文件夹
-  priorityList: Array, // 优先级列表
-  allUsers: Object, // 所有用户
+    visible: Boolean,
+    task: Object, // 编辑时传入任务
+    tagOptions: Object, // 标签
+    projectOptions: Object, //文件夹
+    priorityList: Array, // 优先级列表
+    allUsers: Object, // 所有用户
 });
 
 const form = reactive({
-  id: null,
-  title: "",
-  description: "",
-  project: "",
-  priority: "",
-  tags: [],
-  deadline: "",
-  subtasks: [] // 新增子任务数组
+    id: null,
+    title: '',
+    description: '',
+    project: '',
+    priority: '',
+    tags: [],
+    deadline: '',
+    subtasks: [], // 新增子任务数组
 });
-
-
 
 // 当 task 改变时，更新 form
 watch(
-  () => props.task,
-  (val) => {
-    if (val) {
-      Object.assign(form, val);
-    } else {
-      handleReset();
-    }
-  },
-  { immediate: true }
+    () => props.task,
+    (val) => {
+        if (val) {
+            Object.assign(form, val);
+        } else {
+            handleReset();
+        }
+    },
+    { immediate: true },
 );
 
 // 当用户创建新标签时自动加入选项列表
 watch(
-  () => form.tags,
-  (newVal) => {
-    newVal.forEach(tag => {
-      if (!props.tagOptions.some(tag1 => tag1.name === tag)) {
-        const newTag = {
-          name: tag,        // 标签名
-          color: '#ffffff' // 默认背景颜色
-        }
-        emit('update:tagOptions', newTag)
-      }
-    });
-  }
+    () => form.tags,
+    (newVal) => {
+        newVal.forEach((tag) => {
+            if (!props.tagOptions.some((tag1) => tag1.name === tag)) {
+                const newTag = {
+                    name: tag, // 标签名
+                    color: '#ffffff', // 默认背景颜色
+                };
+                emit('update:tagOptions', newTag);
+            }
+        });
+    },
 );
 
 // 关闭窗体
 function handleClose() {
-  emit("update:visible", false);
-  handleReset(); // 关闭时也可选择清空表单
+    emit('update:visible', false);
+    handleReset(); // 关闭时也可选择清空表单
 }
 
 // 触发创建
 function handleCreate() {
-  if (!form.title.trim()) {
-    // 可以添加提示
-    ElMessage.error('请输入任务标题')
-    return;
-  }
-  emit("create", { ...form });
-  handleClose(); // 关闭弹窗
+    if (!form.title.trim()) {
+        // 可以添加提示
+        ElMessage.error('请输入任务标题');
+        return;
+    }
+    emit('create', { ...form });
+    handleClose(); // 关闭弹窗
 }
 
 // 触发重置
 function handleReset() {
-  form.id = null;
-  form.title = "";
-  form.description = "";
-  form.project = "";
-  form.priority = "";
-  form.tags = [];
-  form.deadline = "";
-  form.subtasks = [];
+    form.id = null;
+    form.title = '';
+    form.description = '';
+    form.project = '';
+    form.priority = '';
+    form.tags = [];
+    form.deadline = '';
+    form.subtasks = [];
 }
 
 // 快捷键 Enter / Esc
 function handleKeydown(e) {
-  if (e.key === "Enter") {
-    handleCreate();  // ✅ 修正：调用 handleCreate 而不是 createTask
-  } else if (e.key === "Escape") {
-    handleClose();
-  }
+    if (e.key === 'Enter') {
+        handleCreate(); // ✅ 修正：调用 handleCreate 而不是 createTask
+    } else if (e.key === 'Escape') {
+        handleClose();
+    }
 }
 
 // 添加子任务
 function addSubtask() {
-  form.subtasks.push({
-    id: Date.now() + Math.random(), // 简单唯一 id
-    title: "",
-    completed: false,  // 添加完成状态
-    Link: [], // 添加关联
-    index: form.subtasks.length, // 记录索引
-    assignees: [] // 存储相关人ID数组
-  });
+    form.subtasks.push({
+        id: Date.now() + Math.random(), // 简单唯一 id
+        title: '',
+        completed: false, // 添加完成状态
+        Link: [], // 添加关联
+        index: form.subtasks.length, // 记录索引
+        assignees: [], // 存储相关人ID数组
+    });
 }
 
 // 删除子任务
 function removeSubtask(index) {
-  form.subtasks.splice(index, 1);
+    form.subtasks.splice(index, 1);
 }
 
-const newTag = ref('')
-const showCustomInput = ref(false)
+const newTag = ref('');
+const showCustomInput = ref(false);
 
 // 添加标签方法 传值给父组件更新标签列表
 const addTag = () => {
-  newTag.value = newTag.value.trim()
-  //  避免重复项目录入项目
-  if (props.projectOptions.includes(newTag.value)) {
-    ElMessage.error('标签名称已存在')
-    return
-  }
-  emit('update:projectOptions', newTag.value)
-  SharedWorker.value = false
-}
+    newTag.value = newTag.value.trim();
+    //  避免重复项目录入项目
+    if (props.projectOptions.includes(newTag.value)) {
+        ElMessage.error('标签名称已存在');
+        return;
+    }
+    emit('update:projectOptions', newTag.value);
+    SharedWorker.value = false;
+};
 
 const getTagType = (value) => {
-  const typeMap = {
-    'P1': 'danger',
-    'P2': 'warning',
-    'P3': 'success',
-    'P4': 'info'
-  };
-  return typeMap[value] || 'primary';
+    const typeMap = {
+        P1: 'danger',
+        P2: 'warning',
+        P3: 'success',
+        P4: 'info',
+    };
+    return typeMap[value] || 'primary';
 };
 
 /**
@@ -287,11 +432,10 @@ const getTagType = (value) => {
 const showPriorityDialog = ref(false);
 const dialogMode = ref('add'); // 'add' 或 'edit'
 
-
 // 1. 打开优先级对话框
 const openPriorityDialog = () => {
-  dialogMode.value = 'add'; // 默认添加模式
-  showPriorityDialog.value = true;
+    dialogMode.value = 'add'; // 默认添加模式
+    showPriorityDialog.value = true;
 };
 
 /**
@@ -304,47 +448,54 @@ const currentSubtaskIndex = ref(-1);
 
 // 打开上传对话框，并保存当前子任务索引
 function openUploadDialog(index) {
-  currentSubtaskIndex.value = index;
-  showUploadDialog.value = true;
+    currentSubtaskIndex.value = index;
+    showUploadDialog.value = true;
 }
 // 上传成功回调
 const handleUploadSuccess = (fileList) => {
-  console.log('上传成功，文件列表：', fileList);
-  ElMessage.success('上传成功');
-  showUploadDialog.value = false;
+    console.log('上传成功，文件列表：', fileList);
+    ElMessage.success('上传成功');
+    showUploadDialog.value = false;
 
-  // 检查索引是否有效
-  if (currentSubtaskIndex.value >= 0 && currentSubtaskIndex.value < form.subtasks.length) {
-    // 将文件添加到对应子任务的 Link 数组
-    if (Array.isArray(fileList)) {
-      // 如果是数组，添加所有文件
-      form.subtasks[currentSubtaskIndex.value].Link.push(...fileList);
+    // 检查索引是否有效
+    if (
+        currentSubtaskIndex.value >= 0 &&
+        currentSubtaskIndex.value < form.subtasks.length
+    ) {
+        // 将文件添加到对应子任务的 Link 数组
+        if (Array.isArray(fileList)) {
+            // 如果是数组，添加所有文件
+            form.subtasks[currentSubtaskIndex.value].Link.push(...fileList);
+        } else {
+            // 如果是单个文件对象
+            form.subtasks[currentSubtaskIndex.value].Link.push(fileList);
+        }
+
+        console.log(
+            '文件已添加到子任务:',
+            currentSubtaskIndex.value,
+            form.subtasks[currentSubtaskIndex.value],
+        );
     } else {
-      // 如果是单个文件对象
-      form.subtasks[currentSubtaskIndex.value].Link.push(fileList);
+        console.error('无效的子任务索引:', currentSubtaskIndex.value);
     }
 
-    console.log('文件已添加到子任务:', currentSubtaskIndex.value, form.subtasks[currentSubtaskIndex.value]);
-  } else {
-    console.error('无效的子任务索引:', currentSubtaskIndex.value);
-  }
-
-  // 重置索引
-  currentSubtaskIndex.value = -1;
+    // 重置索引
+    currentSubtaskIndex.value = -1;
 };
 
 // 取消上传回调
 const handleUploadCancel = () => {
-  ElMessage
-  showUploadDialog.value = false;
+    ElMessage;
+    showUploadDialog.value = false;
 };
 
 /**
  * 3. 子任务添加相关人操作
  */
 // 用户数据
-const userOptions = ref([])
-const loading = ref(false)
+const userOptions = ref([]);
+const loading = ref(false);
 // const allUsers = ref([
 //   { id: 1, name: '徐振宇', department: '技术部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
 //   { id: 2, name: 'NIS', department: '产品部', avatar: 'https://raw.githubusercontent.com/KingOfChelsea/PicGo_MJ_ZY/master/20260415021739742.png' },
@@ -355,183 +506,314 @@ const loading = ref(false)
 
 // 标签颜色配置
 const tagColors = [
-  '#409EFF', '#67C23A', '#E6A23C', '#F56C6C',
-  '#909399', '#8E44AD', '#16A085', '#D35400'
-]
+    '#409EFF',
+    '#67C23A',
+    '#E6A23C',
+    '#F56C6C',
+    '#909399',
+    '#8E44AD',
+    '#16A085',
+    '#D35400',
+];
 
 // 根据用户ID获取标签颜色
 const getTagColor = (userId) => {
-  const index = userId % tagColors.length
-  return tagColors[index]
-}
+    const index = userId % tagColors.length;
+    return tagColors[index];
+};
 
 // 搜索用户
 const searchUsers = (query) => {
-  if (query) {
-    loading.value = true
-    // 模拟异步搜索
-    setTimeout(() => {
-      userOptions.value = allUsers.value.filter(user =>
-        user.name.includes(query) || user.department.includes(query)
-      )
-      loading.value = false
-    }, 200)
-  } else {
-    userOptions.value = []
-  }
-}
+    if (query) {
+        loading.value = true;
+        // 模拟异步搜索
+        setTimeout(() => {
+            userOptions.value = allUsers.value.filter(
+                (user) =>
+                    user.name.includes(query) ||
+                    user.department.includes(query),
+            );
+            loading.value = false;
+        }, 200);
+    } else {
+        userOptions.value = [];
+    }
+};
 
 // 获取相关人详细信息
 const getAssigneeInfo = (assigneeIds) => {
-  return assigneeIds.map(id => {
-    const user = allUsers.value.find(u => u.id === id)
-    return user || { id, name: '未知用户' }
-  })
-}
+    return assigneeIds.map((id) => {
+        const user = allUsers.value.find((u) => u.id === id);
+        return user || { id, name: '未知用户' };
+    });
+};
 
 // 处理相关人变化
 const handleAssigneeChange = (subtask) => {
-  console.log('子任务相关人更新:', subtask)
-  // 这里可以添加其他处理逻辑
-}
+    console.log('子任务相关人更新:', subtask);
+    // 这里可以添加其他处理逻辑
+};
 
 // 移除单个相关人
 const removeAssignee = (subtask, userId) => {
-  const index = subtask.assignees.indexOf(userId)
-  if (index > -1) {
-    subtask.assignees.splice(index, 1)
-  }
+    const index = subtask.assignees.indexOf(userId);
+    if (index > -1) {
+        subtask.assignees.splice(index, 1);
+    }
+};
+
+/**
+ *
+ */
+// 选中的插入类型
+// 选中的插入类型
+const selectedInsertType = ref('')
+
+// 可维护的固定文本配置
+const fixedTextConfig = {
+  maintenanceName: '【系统日常维护】',
+  urgent: '【紧急】',
+  bugFix: '【Bug修复】',
+  feature: '【新功能】',
+  optimization: '【优化】'
 }
 
+// 星期映射表
+const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+
+// 插入选项配置
+const insertOptions = [
+  {
+    value: 'currentDateTime',
+    label: '当前日期时间'
+  },
+  {
+    value: 'currentDate',
+    label: '当前日期'
+  },
+  {
+    value: 'currentTime',
+    label: '当前时间'
+  },
+  {
+    value: 'maintenanceName',
+    label: '系统日常维护'
+  },
+  {
+    value: 'urgent',
+    label: '紧急标记'
+  },
+  {
+    value: 'bugFix',
+    label: 'Bug修复'
+  },
+  {
+    value: 'feature',
+    label: '新功能'
+  },
+  {
+    value: 'optimization',
+    label: '优化'
+  }
+]
+
+// 格式化日期为指定格式：2026年6月29日 星期一
+const formatDateWithWeekDay = (date) => {
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const weekDay = weekDays[date.getDay()]
+
+  return `${year}年${month}月${day}日 ${weekDay}`
+}
+
+// 格式化日期：2026年6月29日
+const formatDate = (date) => {
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+
+  return `${year}年${month}月${day}日`
+}
+
+// 格式化时间：14:30:25
+const formatTime = (date) => {
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+
+  return `${hours}:${minutes}:${seconds}`
+}
+
+// 获取对应插入内容的函数
+const getInsertContent = (type) => {
+  const now = new Date()
+
+  const contentMap = {
+    currentDateTime: () => formatDateWithWeekDay(now),
+    currentDate: () => formatDate(now),
+    currentTime: () => formatTime(now),
+    maintenanceName: () => fixedTextConfig.maintenanceName,
+    urgent: () => fixedTextConfig.urgent,
+    bugFix: () => fixedTextConfig.bugFix,
+    feature: () => fixedTextConfig.feature,
+    optimization: () => fixedTextConfig.optimization
+  }
+
+  return contentMap[type] ? contentMap[type]() : ''
+}
+
+// 处理快速插入
+const handleQuickInsert = () => {
+  if (!selectedInsertType.value) return
+
+  const insertContent = getInsertContent(selectedInsertType.value)
+
+  // 获取当前光标位置或末尾
+  const inputElement = document.querySelector('.el-input__inner')
+  const cursorPosition = inputElement?.selectionStart ?? form.title.length
+
+  // 在光标位置插入内容
+  form.title = form.title.slice(0, cursorPosition) + insertContent + form.title.slice(cursorPosition)
+
+  // 清空选择
+  selectedInsertType.value = ''
+}
 </script>
 
 <style lang="scss" scoped>
 .create-task-dialog {
-  .el-dialog__body {
-    padding: 20px 24px;
-  }
-
-  .dialog-body {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .form-item {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-
-    &.title {
-      .el-input__inner {
-        font-size: 16px;
-        font-weight: 500;
-      }
+    .el-dialog__body {
+        padding: 20px 24px;
     }
 
-    label {
-      font-size: 13px;
-      color: #606266;
+    .dialog-body {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
     }
-  }
-
-  .form-row {
-    display: flex;
-    gap: 16px;
 
     .form-item {
-      flex: 1;
-    }
-  }
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
 
-  .subtask-section {
-    margin-top: 8px;
-    border-top: 1px dashed #ebeef5;
-    padding-top: 12px;
+        &.title {
+            .el-input__inner {
+                font-size: 16px;
+                font-weight: 500;
+            }
+        }
 
-    .subtask-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-
-      span {
-        font-size: 14px;
-        font-weight: 500;
-      }
+        label {
+            font-size: 13px;
+            color: #606266;
+        }
     }
 
-    .subtask-empty {
-      background: #f5f7fa;
-      border-radius: 4px;
-      padding: 10px;
-      text-align: center;
-      font-size: 13px;
-      color: #909399;
+    .form-row {
+        display: flex;
+        gap: 16px;
+
+        .form-item {
+            flex: 1;
+        }
     }
 
-    .subtask-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .subtask-section {
+        margin-top: 8px;
+        border-top: 1px dashed #ebeef5;
+        padding-top: 12px;
+
+        .subtask-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+
+            span {
+                font-size: 14px;
+                font-weight: 500;
+            }
+        }
+
+        .subtask-empty {
+            background: #f5f7fa;
+            border-radius: 4px;
+            padding: 10px;
+            text-align: center;
+            font-size: 13px;
+            color: #909399;
+        }
+
+        .subtask-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
     }
 
-    .subtask-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-  }
+    .dialog-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
 
-  .dialog-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .tip {
-      font-size: 12px;
-      color: #909399;
+        .tip {
+            font-size: 12px;
+            color: #909399;
+        }
     }
-  }
 }
 
 /* 移动端 */
 @media (max-width: 768px) {
-  .create-task-dialog {
-    .el-dialog {
-      width: 90% !important;
-      margin-top: 10vh;
-    }
+    .create-task-dialog {
+        .el-dialog {
+            width: 90% !important;
+            margin-top: 10vh;
+        }
 
-    .form-row {
-      flex-direction: column;
-      gap: 12px;
-    }
+        .form-row {
+            flex-direction: column;
+            gap: 12px;
+        }
 
-    .dialog-footer {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
+        .dialog-footer {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
     }
-  }
 }
 
 .priority-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
 }
 
 .priority-badge {
-  min-width: 40px;
-  justify-content: center;
-  font-weight: 500;
-  flex-shrink: 0;
+    min-width: 40px;
+    justify-content: center;
+    font-weight: 500;
+    flex-shrink: 0;
 }
 
 .priority-desc {
-  color: #606266;
-  font-size: 13px;
+    color: #606266;
+    font-size: 13px;
 }
+.quick-insert-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
 </style>
