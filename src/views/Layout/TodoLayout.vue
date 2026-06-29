@@ -496,6 +496,12 @@
                       </el-icon>
                       添加明细
                     </el-button>
+                    <el-button type="primary" color="#626aef" size="small" @click="openBatchDialog()">
+                      <el-icon class="el-icon--right">
+                        <Connection />
+                      </el-icon>
+                      批量添加明细
+                    </el-button>
                     <el-button type="primary" color="#1fab89" size="small" @click="copyTaskList('completed')">
                       <el-icon>
                         <CopyDocument />
@@ -612,6 +618,8 @@
     <UserDialog v-model:visible="userDialogVisible" @save="handleSaveUser" />
     <!-- 打印任务弹窗 -->
     <PrintTaskDialog v-model:visible="showPrintDialog" :data="todos" />
+     <!-- 批量添加子任务对话框 -->
+      <BatchAddDialog ref="batchDialogRef" @confirm="handleBatchConfirm" />
   </div>
 </template>
 
@@ -633,6 +641,7 @@ import PrintTaskDialog from './components/PrintTaskDialog.vue'
 import ExcelExport from './components/ExcelExport.vue'
 import { copyToClipboard } from '@/utils/copyToClipboard.js'
 import AiSelectorPopover from './components/AiSelectorPopover.vue';
+import BatchAddDialog from './components/BatchAddDialog.vue'
 
 // import { useRouter } from 'vue-router'
 
@@ -1740,6 +1749,35 @@ const handleFavorite = (app) => {
   console.log('收藏状态变化:', app);
   // 可以发送到后端更新收藏状态
 };
+
+/**
+ * 批量操作 Added By Zane Xu 2026-04-16
+ */
+
+const batchDialogRef = ref(null)
+
+// 打开批量添加对话框
+function openBatchDialog() {
+    batchDialogRef.value.open()
+}
+
+// 处理批量添加确认
+function handleBatchConfirm(items) {
+    items.forEach((title, index) => {
+      // console.log(selectedTask.value.subtasks);
+
+        selectedTask.value.subtasks.push({
+            id: Date.now() + Math.random() + index,
+            title: title,
+            completed: false,
+            Link: [],
+            index: selectedTask.value.subtasks.length,
+            assignees: []
+        })
+    })
+
+    ElMessage.success(`成功添加 ${items.length} 个子任务`)
+}
 </script>
 
 <style lang="scss" scoped></style>

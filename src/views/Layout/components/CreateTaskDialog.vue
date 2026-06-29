@@ -24,7 +24,7 @@
                         placeholder="选择插入内容"
                         size="default"
                         clearable
-                        style="width: 140px"
+                        style="width: 220px"
                     >
                         <el-option
                             v-for="item in insertOptions"
@@ -39,6 +39,9 @@
                         @click="handleQuickInsert"
                     >
                         快速插入
+                    </el-button>
+                    <el-button type="warning" plain @click="openManageDialog">
+                        管理模板
                     </el-button>
                 </div>
             </div>
@@ -176,9 +179,17 @@
             <div class="subtask-section">
                 <div class="subtask-header">
                     <span>子任务</span>
-                    <el-button type="success" size="small" @click="addSubtask"
-                        >+ 添加子任务</el-button
-                    >
+                    <div>
+                        <el-button
+                            type="success"
+                            size="small"
+                            @click="addSubtask"
+                            >+ 添加子任务</el-button
+                        >
+                        <el-button type="success" size="small" @click="openBatchDialog"
+                            >+ 批量添加子任务</el-button
+                        >
+                    </div>
                 </div>
 
                 <div v-if="form.subtasks.length === 0" class="subtask-empty">
@@ -279,14 +290,23 @@
         @success="handleUploadSuccess"
         @cancel="handleUploadCancel"
     ></UploadAttachmentDialog>
+    <!-- 快速创建对话框 -->
+    <QuickInsertManager
+        v-model="showManageDialog"
+        v-model:templates="templateList"
+    />
+    <!-- 批量添加对话框 -->
+    <BatchAddDialog ref="batchDialogRef" @confirm="handleBatchConfirm" />
 </template>
 
 <script setup>
-import { reactive, watch, defineProps, defineEmits, ref } from 'vue';
+import { reactive, watch, defineProps, defineEmits, ref, computed } from 'vue';
 import PriorityEditDialog from './PriorityEditDialog.vue';
 import { Link } from '@element-plus/icons-vue';
 import UploadAttachmentDialog from './UploadFileDialog.vue';
-import dayjs from 'dayjs'
+import dayjs from 'dayjs';
+import QuickInsertManager from './QuickInsertManager.vue';
+import BatchAddDialog from './BatchAddDialog.vue'
 
 const emit = defineEmits([
     'update:visible',
@@ -397,6 +417,30 @@ function addSubtask() {
 // 删除子任务
 function removeSubtask(index) {
     form.subtasks.splice(index, 1);
+}
+
+// 批量添加子任务
+const batchDialogRef = ref(null)
+
+// 打开批量添加对话框
+function openBatchDialog() {
+    batchDialogRef.value.open()
+}
+
+// 处理批量添加确认
+function handleBatchConfirm(items) {
+    items.forEach((title, index) => {
+        form.subtasks.push({
+            id: Date.now() + Math.random() + index,
+            title: title,
+            completed: false,
+            Link: [],
+            index: form.subtasks.length,
+            assignees: []
+        })
+    })
+
+    ElMessage.success(`成功添加 ${items.length} 个子任务`)
 }
 
 const newTag = ref('');
@@ -563,122 +607,192 @@ const removeAssignee = (subtask, userId) => {
 };
 
 /**
- *
+ * 1.任务快速插入 Created By Zane Xu 2026-06-29
  */
 // 选中的插入类型
-// 选中的插入类型
-const selectedInsertType = ref('')
+const selectedInsertType = ref('');
 
-// 可维护的固定文本配置
-const fixedTextConfig = {
-  maintenanceName: '【系统日常维护】',
-  urgent: '【紧急】',
-  bugFix: '【Bug修复】',
-  feature: '【新功能】',
-  optimization: '【优化】'
-}
+// 控制管理弹窗显示
+const showManageDialog = ref(false);
 
 // 星期映射表
-const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+const weekDays = [
+    '星期日',
+    '星期一',
+    '星期二',
+    '星期三',
+    '星期四',
+    '星期五',
+    '星期六',
+];
 
-// 插入选项配置
-const insertOptions = [
-  {
-    value: 'currentDateTime',
-    label: '当前日期时间'
-  },
-  {
-    value: 'currentDate',
-    label: '当前日期'
-  },
-  {
-    value: 'currentTime',
-    label: '当前时间'
-  },
-  {
-    value: 'maintenanceName',
-    label: '系统日常维护'
-  },
-  {
-    value: 'urgent',
-    label: '紧急标记'
-  },
-  {
-    value: 'bugFix',
-    label: 'Bug修复'
-  },
-  {
-    value: 'feature',
-    label: '新功能'
-  },
-  {
-    value: 'optimization',
-    label: '优化'
-  }
-]
+// 默认模板列表（初始数据）
+const defaultTemplates = [
+    {
+        value: 'maintenanceName',
+        label: '系统日常维护',
+        content: '【系统日常维护】',
+        disabled: false,
+    },
+    {
+        value: 'urgent',
+        label: '紧急标记',
+        content: '【紧急】',
+        disabled: false,
+    },
+    {
+        value: 'bugFix',
+        label: 'Bug修复',
+        content: '【Bug修复】',
+        disabled: false,
+    },
+    {
+        value: 'feature',
+        label: '新功能',
+        content: '【新功能】',
+        disabled: false,
+    },
+    {
+        value: 'optimization',
+        label: '优化',
+        content: '【优化】',
+        disabled: false,
+    },
+];
+
+// 从 localStorage 加载模板数据
+const loadTemplates = () => {
+    try {
+        const saved = localStorage.getItem('quickInsertTemplates');
+        if (saved) {
+            return JSON.parse(saved);
+        }
+    } catch (e) {
+        console.error('加载模板数据失败:', e);
+    }
+    return JSON.parse(JSON.stringify(defaultTemplates));
+};
+
+// 模板列表
+const templateList = ref(loadTemplates());
+
+// 监听模板变化并保存到 localStorage
+watch(
+    templateList,
+    (newVal) => {
+        if (newVal && newVal.length >= 0) {
+            try {
+                const data = newVal.map(
+                    ({ value, label, content, disabled }) => ({
+                        value,
+                        label,
+                        content,
+                        disabled,
+                    }),
+                );
+                localStorage.setItem(
+                    'quickInsertTemplates',
+                    JSON.stringify(data),
+                );
+            } catch (e) {
+                console.error('保存模板数据失败:', e);
+            }
+        }
+    },
+    { deep: true },
+);
+
+// 计算插入选项
+const insertOptions = computed(() => {
+    const timeOptions = [
+        { value: 'currentDateTime', label: '当前日期时间' },
+        { value: 'currentDate', label: '当前日期' },
+        { value: 'currentTime', label: '当前时间' },
+    ];
+
+    const customOptions = templateList.value
+        .filter((item) => !item.disabled)
+        .map((item) => ({
+            value: item.value,
+            label: item.label,
+        }));
+
+    return [...timeOptions, ...customOptions];
+});
+
+// 打开管理弹窗
+const openManageDialog = () => {
+    showManageDialog.value = true;
+};
 
 // 格式化日期为指定格式：2026年6月29日 星期一
 const formatDateWithWeekDay = (date) => {
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const weekDay = weekDays[date.getDay()]
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const weekDay = weekDays[date.getDay()];
 
-  return `${year}年${month}月${day}日 ${weekDay}`
-}
+    return `${year}年${month}月${day}日 ${weekDay}`;
+};
 
 // 格式化日期：2026年6月29日
 const formatDate = (date) => {
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
 
-  return `${year}年${month}月${day}日`
-}
+    return `${year}年${month}月${day}日`;
+};
 
 // 格式化时间：14:30:25
 const formatTime = (date) => {
-  const hours = String(date.getHours()).padStart(2, '0')
-  const minutes = String(date.getMinutes()).padStart(2, '0')
-  const seconds = String(date.getSeconds()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
 
-  return `${hours}:${minutes}:${seconds}`
-}
+    return `${hours}:${minutes}:${seconds}`;
+};
 
 // 获取对应插入内容的函数
 const getInsertContent = (type) => {
-  const now = new Date()
+    const now = new Date();
 
-  const contentMap = {
-    currentDateTime: () => formatDateWithWeekDay(now),
-    currentDate: () => formatDate(now),
-    currentTime: () => formatTime(now),
-    maintenanceName: () => fixedTextConfig.maintenanceName,
-    urgent: () => fixedTextConfig.urgent,
-    bugFix: () => fixedTextConfig.bugFix,
-    feature: () => fixedTextConfig.feature,
-    optimization: () => fixedTextConfig.optimization
-  }
+    // 时间类型
+    const timeContentMap = {
+        currentDateTime: () => formatDateWithWeekDay(now),
+        currentDate: () => formatDate(now),
+        currentTime: () => formatTime(now),
+    };
 
-  return contentMap[type] ? contentMap[type]() : ''
-}
+    // 先检查是否是时间类型
+    if (timeContentMap[type]) {
+        return timeContentMap[type]();
+    }
+
+    // 查找自定义模板
+    const template = templateList.value.find((t) => t.value === type);
+    return template ? template.content : '';
+};
 
 // 处理快速插入
 const handleQuickInsert = () => {
-  if (!selectedInsertType.value) return
+    if (!selectedInsertType.value) return;
 
-  const insertContent = getInsertContent(selectedInsertType.value)
+    const insertContent = getInsertContent(selectedInsertType.value);
 
-  // 获取当前光标位置或末尾
-  const inputElement = document.querySelector('.el-input__inner')
-  const cursorPosition = inputElement?.selectionStart ?? form.title.length
+    // 获取当前光标位置或末尾
+    const inputElement = document.querySelector('.el-input__inner');
+    const cursorPosition = inputElement?.selectionStart ?? form.title.length;
 
-  // 在光标位置插入内容
-  form.title = form.title.slice(0, cursorPosition) + insertContent + form.title.slice(cursorPosition)
+    // 在光标位置插入内容
+    form.title =
+        form.title.slice(0, cursorPosition) +
+        insertContent +
+        form.title.slice(cursorPosition);
 
-  // 清空选择
-  selectedInsertType.value = ''
-}
+    // 清空选择
+    selectedInsertType.value = '';
+};
 </script>
 
 <style lang="scss" scoped>
@@ -811,9 +925,9 @@ const handleQuickInsert = () => {
     font-size: 13px;
 }
 .quick-insert-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
 </style>
