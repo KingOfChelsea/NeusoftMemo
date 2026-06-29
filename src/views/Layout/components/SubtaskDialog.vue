@@ -41,6 +41,14 @@
                         >
                             <el-icon><Plus /></el-icon>插入
                         </el-button>
+                        <el-button
+                            color="#8B0000"
+                            size="small"
+                            @click="copyToClipboard(formattedJira)"
+                            class="insert-jira-btn"
+                        >
+                            复制
+                        </el-button>
                     </div>
                 </div>
 
@@ -129,7 +137,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { Refresh, InfoFilled, List, Plus } from '@element-plus/icons-vue';
-
+import { copyToClipboard } from '@/utils/copyToClipboard.js';
 const props = defineProps({
     modelValue: Boolean,
     subtask: Object,

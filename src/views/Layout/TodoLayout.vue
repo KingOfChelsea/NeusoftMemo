@@ -102,9 +102,9 @@
         </el-dropdown>
         <!-- 版本号 Created By ZaneXu 2025 -->
         <span class="app-version">版本: v{{ currentVersion }}</span>
-        <el-avatar size="small">
-          <!-- <SvgIcon name="ChatGPT" style="font-size: 24px; color: aqua;" /> -->
-        </el-avatar>
+        <el-avatar :size="50" :src="userInfo.avatar || ''" @click="showDialog = true" class="clickable-avatar">
+      {{ displayName }}
+    </el-avatar>
       </div>
     </header>
 
@@ -619,8 +619,14 @@
     <!-- 打印任务弹窗 -->
     <PrintTaskDialog v-model:visible="showPrintDialog" :data="todos" />
      <!-- 批量添加子任务对话框 -->
-      <BatchAddDialog ref="batchDialogRef" @confirm="handleBatchConfirm" />
-  </div>
+    <BatchAddDialog ref="batchDialogRef" @confirm="handleBatchConfirm" />
+    <!-- 用户头像 -->
+     <UserProfileDialog
+      v-model="showDialog"
+      :user-data="userInfo"
+      @save="handleSave"
+    />
+    </div>
 </template>
 
 <script setup>
@@ -642,6 +648,7 @@ import ExcelExport from './components/ExcelExport.vue'
 import { copyToClipboard } from '@/utils/copyToClipboard.js'
 import AiSelectorPopover from './components/AiSelectorPopover.vue';
 import BatchAddDialog from './components/BatchAddDialog.vue'
+import UserProfileDialog from './components/UserProfileDialog.vue'
 
 // import { useRouter } from 'vue-router'
 
@@ -652,6 +659,7 @@ onMounted(() => {
   timer = setInterval(() => {
     currentTime.value = new Date()
   }, 3600000) // 1小时 = 3600000毫秒
+  loadFromStorage()
 })
 
 /**
@@ -1778,6 +1786,104 @@ function handleBatchConfirm(items) {
 
     ElMessage.success(`成功添加 ${items.length} 个子任务`)
 }
+//**
+//  */ */
+const STORAGE_KEY_profile = 'user_complete_profile'
+const showDialog = ref(false)
+
+// 完整的用户数据结构
+const userInfo = reactive({
+  // 基本信息
+  name: '',
+  nickname: '',
+  gender: '保密',
+  birthday: '',
+  signature: '',
+  bio: '',
+  avatar: '',
+
+  // 联系方式
+  email: '',
+  phone: '',
+  wechat: '',
+  qq: '',
+  address: [],
+  detailAddress: '',
+
+  // 职业信息
+  company: '',
+  position: '',
+  industry: '',
+  workYears: '',
+  skills: [],
+  education: [],
+
+  // 社交账号
+  github: '',
+  blog: '',
+  weibo: '',
+  zhihu: '',
+  bilibili: '',
+  tiktok: '',
+
+  // 个人偏好
+  hobbies: [],
+  favoriteMusic: '',
+  favoriteMovies: '',
+  favoriteBooks: '',
+  dietary: [],
+  sports: [],
+  sleepTime: [22, 7]
+})
+
+// 计算显示的首字母
+const displayName = computed(() => {
+  if (userInfo.name) {
+    return userInfo.name.charAt(0).toUpperCase()
+  }
+  if (userInfo.nickname) {
+    return userInfo.nickname.charAt(0).toUpperCase()
+  }
+  return '?'
+})
+
+// 从本地存储加载数据
+const loadFromStorage = () => {
+  try {
+    const savedData = localStorage.getItem(STORAGE_KEY_profile)
+    if (savedData) {
+      const parsed = JSON.parse(savedData)
+      Object.keys(userInfo).forEach(key => {
+        if (parsed[key] !== undefined) {
+          userInfo[key] = parsed[key]
+        }
+      })
+    }
+  } catch (error) {
+    console.error('读取本地数据失败:', error)
+  }
+}
+
+// 保存到本地存储
+const saveToStorage = (data) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  } catch (error) {
+    console.error('保存数据失败:', error)
+  }
+}
+
+// 处理保存事件
+const handleSave = (data) => {
+  Object.keys(userInfo).forEach(key => {
+    if (data[key] !== undefined) {
+      userInfo[key] = data[key]
+    }
+  })
+  saveToStorage(data)
+  ElMessage.success('个人信息已更新！')
+}
+
 </script>
 
 <style lang="scss" scoped></style>
